@@ -20,10 +20,29 @@ def get_shows(column, value):
 def get_shows(group):
     return "List all shows in custom group '{0}'.".format(group)
 
+@app.post('/shows/create')
+def create_show():
+    show_data = request.json
+    #sanitization
+    #ORM data handling
+    return show_data
+
 @app.get('/show/<id>')
 def get_show(id):
     #resolve id function here
     return "Return information for show '{0}'.".format(id)
+
+@app.put('/staff/<id:int>')
+def update_show(id):
+    show_data = request.json
+    #sanitization, set values for null data
+    #ORM data handling
+    return show_data
+
+@app.delete('/sshow/<id:int>')
+def delete_show(id):
+    #check if exists, and delete through ORM
+    return {'success': True}
 
 @app.get('/show/<id>/blame')
 def who_to_blame_for(id):
@@ -39,9 +58,28 @@ def get_show(id, column):
 def get_staff():
     return "List all staff."
 
+@app.post('/staff/create')
+def add_new_member():
+    member_data = request.json
+    #sanitization
+    #ORM data handling
+    return member_data
+
 @app.get('/staff/<id:int>')
-def get_staff(id):
+def get_member(id):
     return "Return information for staff member ID '{0}'.".format(id)
+
+@app.put('/staff/<id:int>')
+def update_member(id):
+    member_data = request.json
+    #sanitization, set values for null data
+    #ORM data handling
+    return member_data
+
+@app.delete('/staff/<id:int>')
+def delete_member(id):
+    #check if exists, and delete through ORM
+    return {'success': True}
 
 @app.get('/staff/<id:int>/shows')
 def shows_worked_on(id):
