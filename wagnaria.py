@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from bottle import Bottle, run
+from bottle import Bottle, request, run
 
 app = Bottle()
 
@@ -39,7 +39,7 @@ def update_show(id):
     #ORM data handling
     return show_data
 
-@app.delete('/sshow/<id:int>')
+@app.delete('/show/<id:int>')
 def delete_show(id):
     #check if exists, and delete through ORM
     return {'success': True}
