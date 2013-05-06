@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from bottle import Bottle, request, run
 import json
-import redis
+import pymongo
 import yaml
 
 f = open('config.yaml')
@@ -10,7 +10,12 @@ settings = yaml.load(f)
 f.close()
 
 app = Bottle()
-store = redis.StrictRedis(host=settings['redis']['host'], port=settings['redis']['port'], db=settings['redis']['db'])
+
+client = pymongo.MongoClient(settings['mongo']['host'], settings['mongo']['port'])
+db = client[settings['mongo']['name']]
+
+shows = db.shows
+staff = db.staff
 
 @app.route('/')
 def index():
