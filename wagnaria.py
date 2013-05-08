@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from bottle import Bottle, request, run
+from bottle import Bottle, request, response, run
 import json
 import pymongo
 import yaml
@@ -14,30 +14,43 @@ app = Bottle()
 client = pymongo.MongoClient(settings['mongo']['host'], settings['mongo']['port'])
 db = client[settings['mongo']['name']]
 
-shows = db.shows
-staff = db.staff
-
 @app.route('/')
 def index():
-    return "<pre>Strawberries and cream, \nbiscuits and tea, \nwon't you join me \nby the silk sea?</pre>"
+    return "<pre>Strawberries and cream, \nbiscuits and tea, \nwon't you join me \nin the oak tree?</pre>"
 
 @app.get('/shows')
 def get_shows():
-    # shows.find()
-    return "List all shows."
+    shows = []
+    for show in db.shows.find():
+        show['_id'] = str(show['_id'])
+        shows.append(show)
+    return prepare_json(shows)
 
-@app.get('/shows/<column:re:[a-z_]+>/<value>')
+# maybe this route turned out to be a bad idea.
+@app.get('/shows/<column:re:[a-z_{}]+>/<value>')
 def get_shows(column, value):
-    # shows.find({column: value})
-    return "List all shows whose '{0}' field is set to '{1}'.".format(column, value)
+    shows = []
+    if value == "true":
+        value = True
+    for show in db.shows.find({column: value}):
+        show['_id'] = str(show['_id'])
+        shows.append(show)
+    return prepare_json(shows)
 
 @app.get('/shows/<group:re:[a-z_]+>')
 def get_shows(group):
-    # complete: shows.find({status: 1})
-    # incomplete: shows.find({status: {'$lte': 0}})
+    query = {
+        'complete': { "status": "complete" },
+        'incomplete': { "status": { "$in": [ "airing", "incomplete" ] } },
+        #'aired': { status: "airing", is_encoded: False, airtime: SOME_MATH_HERE }
+        'current_episodes': { "status": "airing", "episodes": { "current": { "$gt": 0 } } }
+        }.get(group)
     # aired: shows.find({status: 0, encoded: 0, airtime: {'$lt': "new DateTime"}})
-    # current_episodes: shows.find({status: 0, current_ep: {'$gt': 0}})
-    return "List all shows in custom group '{0}'.".format(group)
+    shows = []
+    for show in db.shows.find(query):
+        show['_id'] = str(show['_id'])
+        shows.append(show)
+    return prepare_json(shows)
 
 @app.post('/shows/create')
 def create_show():
@@ -110,5 +123,9 @@ def delete_member(id):
 def shows_worked_on(id):
     # shows.find({$or: [{translator: id}, {typesetter: id}, {timer: id}, {editor: id}]})
     return "List all shows '{0}' has worked on.".format(id)
+    
+def prepare_json(ingredients):
+    response.content_type = 'application/json'
+    return json.dumps(ingredients)
 
 run(app, host='0.0.0.0', port=8080, debug=True, reloader=True)
