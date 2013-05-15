@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from bottle import Bottle, request, response, run
 from bson.objectid import ObjectId
+from bson.json_util import dumps
 import json
 import pymongo
 import yaml
@@ -21,37 +22,23 @@ def index():
 
 @app.get('/shows')
 def get_shows():
-    shows = []
-    for show in db.shows.find():
-        show['_id'] = str(show['_id'])
-        shows.append(show)
-    return prepare_json(shows)
+    return prepare_json(db.shows.find())
 
 # maybe this route turned out to be a bad idea.
-@app.get('/shows/<column:re:[a-z_{}]+>/<value>')
+@app.get('/shows/<column:re:[a-z_.]+>/<value>')
 def get_shows(column, value):
-    shows = []
-    if value == "true":
-        value = True
-    for show in db.shows.find({column: value}):
-        show['_id'] = str(show['_id'])
-        shows.append(show)
-    return prepare_json(shows)
+    return prepare_json(db.shows.find({column: value}))
 
 @app.get('/shows/<group:re:[a-z_]+>')
 def get_shows(group):
     query = {
-        'complete': { "status": "complete" },
-        'incomplete': { "status": { "$in": [ "airing", "incomplete" ] } },
-        #'aired': { status: "airing", is_encoded: False, airtime: SOME_MATH_HERE }
-        'current_episodes': { "status": "airing", "episodes": { "current": { "$gt": 0 } } }
-        }.get(group)
+            'complete': { "status": "complete" },
+            'incomplete': { "status": { "$in": [ "airing", "incomplete" ] } },
+            #'aired': { status: "airing", is_encoded: False, airtime: SOME_MATH_HERE }
+            'current_episodes': { "status": "airing", "episodes": { "current": { "$gt": 0 } } }
+            }.get(group)
     # aired: shows.find({status: 0, encoded: 0, airtime: {'$lt': "new DateTime"}})
-    shows = []
-    for show in db.shows.find(query):
-        show['_id'] = str(show['_id'])
-        shows.append(show)
-    return prepare_json(shows)
+    return prepare_json(db.shows.find(query))
 
 @app.post('/shows/create')
 def create_show():
@@ -62,9 +49,7 @@ def create_show():
 
 @app.get('/show/<_id>')
 def get_show(_id):
-    show = db.shows.find_one({'_id': ObjectId(_id)})
-    show['_id'] = str(show['_id'])
-    return show
+    return prepare_json([db.shows.find_one({'_id': ObjectId(_id)})])
 
 @app.put('/show/<_id>')
 def update_show(_id):
@@ -127,6 +112,8 @@ def shows_worked_on(_id):
     
 def prepare_json(ingredients):
     response.content_type = 'application/json'
-    return json.dumps(ingredients)
+    #for item in ingredients:
+        #item['_id'] = str(item['_id'])
+    return dumps(ingredients)
 
 run(app, host='0.0.0.0', port=8080, debug=True, reloader=True)
