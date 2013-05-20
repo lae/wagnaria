@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from bottle import Bottle, request, response, run
-from bson.objectid import ObjectId
+from bottle import Bottle, HTTPError, request, response
 from bson.json_util import dumps
 import json
 import pymongo
@@ -11,34 +10,41 @@ f = open('config.yaml')
 settings = yaml.load(f)
 f.close()
 
-app = Bottle()
-
+# Connect to MongoDB and load database
 client = pymongo.MongoClient(settings['mongo']['host'], settings['mongo']['port'])
 db = client[settings['mongo']['name']]
 
-@app.route('/')
+# Pre-define routes and their respective functions
+def install_routes(app):
+    app.route('/', ['ANY'], index)
+    app.route('/shows', ['GET'], get_shows)
+    app.route('/shows/<column:re:[a-z_.]+>/<value>', ['GET'], get_shows)
+    app.route('/shows/<group:re:[a-z_]+>', ['GET'], get_shows)
+
+# Index page
 def index():
     return "<pre>Strawberries and cream, \nbiscuits and tea, \nwon't you join me \nin the oak tree?</pre>"
 
-@app.get('/shows')
-def get_shows():
-    return prepare_json(db.shows.find())
-
-# maybe this route turned out to be a bad idea.
-@app.get('/shows/<column:re:[a-z_.]+>/<value>')
-def get_shows(column, value):
-    return prepare_json(db.shows.find({column: value}))
-
-@app.get('/shows/<group:re:[a-z_]+>')
-def get_shows(group):
-    query = {
+def get_shows(group=None, column=None, value=None):
+    if group:
+        query = {
             'complete': { "status": "complete" },
-            'incomplete': { "status": { "$in": [ "airing", "incomplete" ] } },
-            #'aired': { status: "airing", is_encoded: False, airtime: SOME_MATH_HERE }
+            'incomplete': { "status": { "$in": [ "unaired", "airing", "incomplete" ] } },
+            # aired: shows.find({status: 0, encoded: 0, airtime: {'$lt': "new DateTime"}})
+            'aired': { "status": "airing", "progress.encode": False, "airtime": {"$lt": "new Date()"} },
             'current_episodes': { "status": "airing", "episodes": { "current": { "$gt": 0 } } }
-            }.get(group)
-    # aired: shows.find({status: 0, encoded: 0, airtime: {'$lt': "new DateTime"}})
-    return prepare_json(db.shows.find(query))
+        }.get(group)
+        if not query:
+            raise HTTPError(404, "No such group.")
+        shows = db.shows.find(query)
+    elif column:
+        # maybe this route turned out to be a bad idea.
+        shows = db.shows.find({column: value})
+    else:
+        shows = db.shows.find()
+    return prepare_json(shows)
+
+app = Bottle()
 
 @app.post('/shows/create')
 def create_show():
@@ -78,8 +84,7 @@ def get_show(_id, column):
 
 @app.get('/staff')
 def get_staff():
-    # staff.find()
-    return "List all staff."
+    return prepare_json(db.staff.find())
 
 @app.post('/staff/create')
 def add_new_member():
@@ -116,4 +121,6 @@ def prepare_json(ingredients):
         #item['_id'] = str(item['_id'])
     return dumps(ingredients)
 
-run(app, host='0.0.0.0', port=8080, debug=True, reloader=True)
+install_routes(app)
+app.run(host=settings['bottle']['host'], port=settings['bottle']['port'],
+        debug=settings['bottle']['debug'], reloader=settings['bottle']['reloader'])

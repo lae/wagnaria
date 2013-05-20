@@ -2,3 +2,8 @@ mongo:
     name: wagnaria
     host: localhost
     port: 27017
+bottle:
+    host: 0.0.0.0
+    port: 8080
+    debug: False
+    reloader: True
