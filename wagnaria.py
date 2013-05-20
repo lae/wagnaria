@@ -19,18 +19,21 @@ db = client[settings['mongo']['name']]
 # Pre-define routes and their respective functions
 def install_routes(app):
     app.route('/', ['ANY'], index)
-    app.route('/shows', ['GET'], get_shows)
-    app.route('/shows/<column:re:[a-z_.]+>/<value>', ['GET'], get_shows)
-    app.route('/shows/<group:re:[a-z_]+>', ['GET'], get_shows)
-    app.route('/show/<_id>', ['GET'], get_show)
-    app.route('/show/<_id>/<column:re:[a-z_.]+>', ['GET'], get_show)
+    app.route('/shows', ['GET'], load_shows)
+    #app.route('/shows/<column:re:[a-z_.]+>/<value>', ['GET'], load_shows)
+    app.route('/shows/<group:re:[a-z_]+>', ['GET'], load_shows)
+    app.route('/show/<_id>', ['GET'], load_show)
+    app.route('/show/<_id>/<column:re:[a-z_.]+>', ['GET'], load_show)
+    app.route('/staff', ['GET'], load_staff)
+    app.route('/staff/<_id>', ['GET'], load_member)
+    app.route('/staff/<_id>/shows', ['GET'], load_members_shows)
 
 # Index page
 def index():
     return "<pre>Strawberries and cream, \nbiscuits and tea, \nwon't you join me \nin the oak tree?</pre>"
 
 # Return a list of shows
-def get_shows(group=None, column=None, value=None):
+def load_shows(group=None):#, column=None, value=None):
     if group:
         query = {
             'complete': { "status": "complete" },
@@ -41,14 +44,14 @@ def get_shows(group=None, column=None, value=None):
         if not query:
             raise HTTPError(404, 'Group "{0}" does not exist.'.format(group))
         shows = db.shows.find(query)
-    elif column:
+'''    elif column:
         # maybe this route turned out to be a bad idea.
-        shows = db.shows.find({column: value})
+        shows = db.shows.find({column: value})'''
     else:
         shows = db.shows.find()
     return prepare_json(shows)
 
-def get_show(_id, column=None):
+def load_show(_id, column=None):
     show = db.shows.find_one({'_id': ObjectId(_id)})
     if not show:
         raise HTTPError(404, 'There is no show with an ObjectId of "{0}".'.format(_id))
@@ -59,6 +62,23 @@ def get_show(_id, column=None):
         if not field:
             raise HTTPError(404, 'The "{0}" field does not exist for {1}'.format(column, show['titles']['english']))
         return prepare_json([field])
+
+def load_member(_id):
+    member = db.staff.find_one({'_id': ObjectId(_id)})
+    if not member:
+        raise HTTPError(404, 'There is no staff member with an ObjectId of "{0}".'.format(_id))
+    return prepare_json([member])
+
+def load_staff():
+    staff = db.staff.find()
+    return prepare_json(staff)
+
+def load_members_shows(_id):
+    oid = ObjectId(_id)
+    results = db.shows.find({'$or': [{'staff.translator.id': oid}, {'staff.typesetter.id': oid},
+                                 {'staff.timer.id': oid}, {'staff.editor.id': oid}]})
+    shows = map(lambda s: s['titles']['english'], results)
+    return prepare_json(shows)
 
 app = Bottle()
 
@@ -88,21 +108,12 @@ def who_to_blame_for(_id):
     # shows.find({id: id})
     return "Return position and value for whoever is stalling show '{0}'.".format(_id)
 
-@app.get('/staff')
-def get_staff():
-    return prepare_json(db.staff.find())
-
 @app.post('/staff/create')
 def add_new_member():
     member_data = request.json
     #sanitization
     # staff.save(member_data)
     return member_data
-
-@app.get('/staff/<_id>')
-def get_member(_id):
-    # staff.find({id: id})
-    return "Return information for staff member ID '{0}'.".format(_id)
 
 @app.put('/staff/<_id>')
 def update_member(_id):
@@ -116,11 +127,6 @@ def delete_member(_id):
     # staff.remove({id: id})
     return {'success': True}
 
-@app.get('/staff/<_id>/shows')
-def shows_worked_on(_id):
-    # shows.find({$or: [{translator: id}, {typesetter: id}, {timer: id}, {editor: id}]})
-    return "List all shows '{0}' has worked on.".format(_id)
-    
 def prepare_json(ingredients):
     response.content_type = 'application/json'
     #for item in ingredients:
