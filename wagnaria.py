@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import os
 from bottle import Bottle, HTTPError, request, response
 from pymongo import MongoClient
 from bson.json_util import dumps
@@ -20,7 +21,6 @@ db = client[settings['mongo']['name']]
 def install_routes(app):
     app.route('/', ['ANY'], index)
     app.route('/shows', ['GET'], load_shows)
-    #app.route('/shows/<column:re:[a-z_.]+>/<value>', ['GET'], load_shows)
     app.route('/shows/<group:re:[a-z_]+>', ['GET'], load_shows)
     app.route('/show/<_id>', ['GET'], load_show)
     app.route('/show/<_id>/<column:re:[a-z_.]+>', ['GET'], load_show)
@@ -32,8 +32,14 @@ def install_routes(app):
 def index():
     return "<pre>Strawberries and cream, \nbiscuits and tea, \nwon't you join me \nin the oak tree?</pre>"
 
+def resolve_staff(show):
+    for position in ['translator', 'editor', 'timer', 'typesetter']:
+        if 'name' not in show['staff'][position]:
+            show['staff'][position]['name'] = db.staff.find_one({'_id': ObjectId(show['staff'][position]['id'])})['name']
+    return show
+
 # Return a list of shows
-def load_shows(group=None):#, column=None, value=None):
+def load_shows(group=None):
     if group:
         query = {
             'complete': { "status": "complete" },
@@ -44,35 +50,38 @@ def load_shows(group=None):#, column=None, value=None):
         if not query:
             raise HTTPError(404, 'Group "{0}" does not exist.'.format(group))
         shows = db.shows.find(query)
-'''    elif column:
-        # maybe this route turned out to be a bad idea.
-        shows = db.shows.find({column: value})'''
     else:
         shows = db.shows.find()
+    shows = map(lambda s: resolve_staff(s), shows)
     return prepare_json(shows)
 
+# Return a show
 def load_show(_id, column=None):
-    show = db.shows.find_one({'_id': ObjectId(_id)})
+    show = [db.shows.find_one({'_id': ObjectId(_id)})]
     if not show:
         raise HTTPError(404, 'There is no show with an ObjectId of "{0}".'.format(_id))
     if not column:
-        return prepare_json([show])
+        show = map(lambda s: resolve_staff(s), show)
+        return prepare_json(show)
     else:
         field = db.shows.find_one({'_id': ObjectId(_id)}, {column: 1, '_id': 0})
         if not field:
             raise HTTPError(404, 'The "{0}" field does not exist for {1}'.format(column, show['titles']['english']))
         return prepare_json([field])
 
+# Return a member's information
 def load_member(_id):
     member = db.staff.find_one({'_id': ObjectId(_id)})
     if not member:
         raise HTTPError(404, 'There is no staff member with an ObjectId of "{0}".'.format(_id))
     return prepare_json([member])
 
+# Return a list of all staff
 def load_staff():
     staff = db.staff.find()
     return prepare_json(staff)
 
+# Return a list of shows a staff member has worked on
 def load_members_shows(_id):
     oid = ObjectId(_id)
     results = db.shows.find({'$or': [{'staff.translator.id': oid}, {'staff.typesetter.id': oid},
