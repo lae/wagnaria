@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from bottle import Bottle, HTTPError, request, response
+import bottle
+from bottle import HTTPError, request, response
+import yaml
 from pymongo import MongoClient
+import json
 from bson.json_util import dumps
 from bson.objectid import ObjectId
-import json
-import yaml
 import datetime
 
 f = open('config.yaml')
@@ -88,8 +89,6 @@ def load_members_shows(_id):
     shows = map(lambda s: s['titles']['english'], results)
     return prepare_json(shows)
 
-app = Bottle()
-
 @app.post('/shows/create')
 def create_show():
     show_data = request.json
@@ -141,9 +140,10 @@ def prepare_json(ingredients):
         #item['_id'] = str(item['_id'])
     return dumps(ingredients)
 
-install_routes(app)
-
 # Run app using the default wsgiref
 if __name__ == "__main__":
     sb = settings['bottle']
-    app.run(host=sb['host'], port=sb['port'], debug=sb['debug'], reloader=sb['reloader'])
+    bottle.run(host=sb['host'], port=sb['port'], debug=sb['debug'], reloader=sb['reloader'])
+
+app = bottle.default_app()
+install_routes(app)
