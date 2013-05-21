@@ -27,6 +27,13 @@ def install_routes(app):
     app.route('/staff', ['GET'], load_staff)
     app.route('/staff/<_id>', ['GET'], load_member)
     app.route('/staff/<_id>/shows', ['GET'], load_members_shows)
+    app.route('/shows', ['POST'], create_show)
+    app.route('/show/<_id>', ['PUT'], modify_show)
+    app.route('/show/<_id>', ['DELETE'], destroy_show)
+    app.route('/show/<_id>/blame', ['GET'], blame_show)
+    app.route('/staff', ['POST'], create_member)
+    app.route('/staff/<_id>', ['PUT'], modify_member)
+    app.route('/staff/<_id>', ['DELETE'], destroy_member)
 
 # Index page
 def index():
@@ -89,48 +96,48 @@ def load_members_shows(_id):
     shows = map(lambda s: s['titles']['english'], results)
     return prepare_json(shows)
 
-@app.post('/shows/create')
+# Insert a new show into the shows collection
 def create_show():
     show_data = request.json
     #sanitization
     # shows.save(show_data)
     return show_data
 
-@app.put('/show/<_id>')
-def update_show(_id):
+# Update a show's metadata
+def modify_show(_id):
     show_data = request.json
     #sanitization, set values for null data
     # show.update({id: id}, {'$set': {show_data}})
     return show_data
 
-@app.delete('/show/<_id')
-def delete_show(_id):
+# Remove a show from the shows collection
+def destroy_show(_id):
     #check if exists
     # shows.remove({id: id})
     return {'success': True}
 
-@app.get('/show/<_id>/blame')
-def who_to_blame_for(_id):
+# Return information about who's stalling a show
+def blame_show(_id):
     #resolve id function here
     # shows.find({id: id})
     return "Return position and value for whoever is stalling show '{0}'.".format(_id)
 
-@app.post('/staff/create')
-def add_new_member():
+# Insert a new member into the staff collection
+def create_member():
     member_data = request.json
     #sanitization
     # staff.save(member_data)
     return member_data
 
-@app.put('/staff/<_id>')
-def update_member(_id):
+# Update a member's metadata
+def modify_member(_id):
     member_data = request.json
     #sanitization, set values for null data
     # staff.update({id: id}, {'$set': {member_data}})
     return member_data
 
-@app.delete('/staff/<_id>')
-def delete_member(_id):
+# Remove a member from the staff collection
+def destroy_member(_id):
     # staff.remove({id: id})
     return {'success': True}
 
@@ -140,10 +147,11 @@ def prepare_json(ingredients):
         #item['_id'] = str(item['_id'])
     return dumps(ingredients)
 
+install_routes(bottle)
+
 # Run app using the default wsgiref
 if __name__ == "__main__":
     sb = settings['bottle']
     bottle.run(host=sb['host'], port=sb['port'], debug=sb['debug'], reloader=sb['reloader'])
 
 app = bottle.default_app()
-install_routes(app)
