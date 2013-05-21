@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import os
 from bottle import Bottle, HTTPError, request, response
 from pymongo import MongoClient
 from bson.json_util import dumps
@@ -143,5 +142,8 @@ def prepare_json(ingredients):
     return dumps(ingredients)
 
 install_routes(app)
-app.run(host=settings['bottle']['host'], port=settings['bottle']['port'],
-        debug=settings['bottle']['debug'], reloader=settings['bottle']['reloader'])
+
+# Run app using the default wsgiref
+if __name__ == "__main__":
+    sb = settings['bottle']
+    app.run(host=sb['host'], port=sb['port'], debug=sb['debug'], reloader=sb['reloader'])

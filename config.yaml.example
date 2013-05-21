@@ -1,7 +1,9 @@
+# These are (mostly) the default Mongo credentials. Modify as needed.
 mongo:
     name: wagnaria
     host: localhost
     port: 27017
+# Bind globally. These are only used if you run the app by itself.
 bottle:
     host: 0.0.0.0
     port: 8080
