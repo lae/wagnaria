@@ -11,6 +11,8 @@ from bson.objectid import ObjectId
 import bottle
 from bottle import HTTPError, request, response
 
+#class Wagnaria(object):
+#    def __init__(self, 
 f = open('config.yaml')
 settings = yaml.load(f)
 f.close()
@@ -97,7 +99,7 @@ def load_show(oid, column=None):
                                   {column: 1, '_id': 0})
         if not field:
             raise HTTPError(404, 'The "%s" field does not exist for %s' %
-                            column, show['titles']['english']))
+                            column, show['titles']['english'])
         return prepare_json([field])
 
 # Return a member's information
