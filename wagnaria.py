@@ -51,6 +51,7 @@ def load_shows(group=None):
         query = {
             'complete': { "status": "complete" },
             'incomplete': { "status": { "$in": [ "unaired", "airing", "incomplete" ] } },
+            'airing': { "status": "airing" },
             'aired': { "status": "airing", "progress.encoded": False, "airtime": {"$lt": datetime.datetime.utcnow()} },
             'current_episodes': { "status": "airing", "episodes": { "current": { "$gt": 0 } } }
         }.get(group)
@@ -91,8 +92,7 @@ def load_staff():
 # Return a list of shows a staff member has worked on
 def load_members_shows(oid):
     oid = ObjectId(oid)
-    results = db.shows.find({'$or': [{'staff.translator.id': oid}, {'staff.typesetter.id': oid},
-                                 {'staff.timer.id': oid}, {'staff.editor.id': oid}]})
+    results = db.shows.find({'$or': [{'staff.{0}.id'.format(p): oid} for p in ['translator', 'editor', 'timer', 'typesetter']]})
     shows = map(lambda s: s['titles']['english'], results)
     return prepare_json(shows)
 
