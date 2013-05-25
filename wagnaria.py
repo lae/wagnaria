@@ -50,7 +50,7 @@ class Wagnaria(object):
             exit(1)
         # Load the database if it exists, create it if it doesn't.
         self.db = self.client[self.config['mongo']['name']]
-        self.shows = RESTfulCollection(self.db.shows)
+        self.shows = ShowsCollection(self.db.shows, self.db.staff)
         self.app = bottle.default_app()
         # ObjectId Filter
         self.app.router.add_filter('oid', lambda x: (r'[0-9a-f]{24}', ObjectId, str))
@@ -105,16 +105,15 @@ class RESTfulCollection(object):
         self.collection = collection
     def reply(self, data):
         response.content_type = 'application/json'
-        return data
+        return dumps(data)
     def find_by_id(self, oid):
-        document = self.collection.find_one({'_id': oid})
+        document = self.collection.find_one(oid)
         if document:
             return self.reply([document])
         else:
             raise HTTPError(404, 'Could not find document %s.' % str(oid))
     def find(self, query=None, projection=None):
-        response.content_type = 'application/json'
-        return dumps([doc for doc in self.collection.find(query, projection)])
+        return self.reply([doc for doc in self.collection.find(query, projection)])
     def create(self, document):
         try:
             oid = self.insert(document)
@@ -132,14 +131,26 @@ class RESTfulCollection(object):
             return "Something went terribly wrong. "+e
         return info
 
-def resolve_staff(show):
-    for position in ('translator', 'editor', 'timer', 'typesetter'):
-        if 'name' not in show['staff'][position]:
-            show['staff'][position]['name'] = db.staff.find_one(
-                {'_id': ObjectId(show['staff'][position]['id'])}
-            )['name']
-    return show
-
+class ShowsCollection(RESTfulCollection):
+    def __init__(self, shows_collection, staff_collection):
+        self.collection = shows_collection
+        self.staff = staff_collection
+    def resolve_staff(self, show):
+        for position in ('translator', 'editor', 'timer', 'typesetter'):
+            member = show['staff'][position]
+            if 'name' not in member:
+                member['name'] = self.staff.find_one(member['id'])['name']
+        return show
+    def find_by_id(self, oid):
+        document = self.collection.find_one(oid)
+        if document:
+            return self.reply([self.resolve_staff(document)])
+        else:
+            raise HTTPError(404, 'Could not find document %s.' % str(oid))
+    def find(self, query=None, projection=None):
+        shows = [doc for doc in self.collection.find(query, projection)]
+        shows = map(lambda s: self.resolve_staff(s), shows)
+        return self.reply(shows)
 # Return a list of shows
 def load_shows(group=None):
     if group:
