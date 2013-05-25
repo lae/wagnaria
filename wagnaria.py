@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import yaml
-import datetime
+from datetime import datetime as dt
 import json
 
 from pymongo import MongoClient
@@ -11,51 +11,117 @@ from bson.objectid import ObjectId
 import bottle
 from bottle import HTTPError, request, response
 
-#class Wagnaria(object):
-#    def __init__(self, 
-f = open('config.yaml')
-settings = yaml.load(f)
-f.close()
+class Wagnaria(object):
+    def __init__(self):
+        # Default Settings. You can place overrides in config.yaml.
+        # 'bottle_run' settings are only used when executed standalone.
+        self.config = {
+            'mongo': {
+                'host': 'localhost',
+                'name': 'wagnaria',
+                'port': 27017
+            },
+            'bottle_run': {
+                'host': 'localhost',
+                'debug': True,
+                'port': 9002
+            }
+        }
+        # Update settings if a config file exists.
+        try:
+            cfg = open('config.yaml')
+        except (FileNotFoundError, PermissionError) as e:
+            print(e + "\nContinuing with default configuration.")
+        if cfg:
+            try:
+                self.config.update(yaml.load(cfg))
+            except Exception:
+                print(e + "\nQuitting because I could not properly interpret",
+                      "config.yaml; check that your syntax is correct.")
+                exit(1)
+            finally:
+                cfg.close()
+        # Establish a MongoDB connection.
+        try:
+            self.client = MongoClient(self.config['mongo']['host'],
+                                      self.config['mongo']['port'])
+        except Exception:
+            print(e + "\nUnable to connect to MongoDB, quitting.")
+            exit(1)
+        # Load the database if it exists, create it if it doesn't.
+        self.db = self.client[self.config['mongo']['name']]
+        self.shows = RESTfulCollection(self.db.shows)
+        self.app = bottle.default_app()
+        # ObjectId Filter
+        self.app.router.add_filter('oid', lambda x: (r'[0-9a-f]{24}', ObjectId, str))
+        self.install_routes(self.app)
+        # Run app using the default wsgiref
+        if __name__ == '__main__':
+            sb = []
+            for k, v in self.config['bottle_run'].items():
+                if isinstance(v, str):
+                    sb.append("%s='%s'" % (k, v))
+                else:
+                    sb.append("%s=%s" % (k, v))
+            eval("bottle.default_app().run({0})".format(', '.join(sb)))
 
-# Connect to MongoDB and load database
-client = MongoClient(settings['mongo']['host'], settings['mongo']['port'])
-db = client[settings['mongo']['name']]
-
-# Pre-define routes and their respective functions
-def install_routes(app):
-    app.route('/', ['ANY'], index)
-    app.route('/shows', ['GET'], load_shows)
-    app.route('/shows/<oid:re:[0-9a-f]{24}:re:[0-9a-f]{24}>', ['GET'],
-              load_show)
-    app.route('/shows/<oid:re:[0-9a-f]{24}>/<column:re:[a-z_.]+>', ['GET'],
+    # Pre-define routes and their respective functions
+    def install_routes(self, b):
+        #b.route('/', ['ANY'], self.index)
+        b.route('/shows', ['GET'], self.shows.find)
+        b.route('/shows/<oid:oid>', ['GET'], self.shows.find_by_id)
+"""    app.route('/shows/<oid:oid>/<column:re:[a-z_.]+>', ['GET'],
               load_show)
     app.route('/shows/<group:re:[a-z_]+>', ['GET'],
               load_shows)
     app.route('/shows', ['POST'], create_show)
-    app.route('/shows/<oid:re:[0-9a-f]{24}>', ['PUT'], modify_show)
-    app.route('/shows/<oid:re:[0-9a-f]{24}>', ['DELETE'], destroy_show)
-    app.route('/shows/<oid:re:[0-9a-f]{24}>/blame', ['GET'], blame_show)
+    app.route('/shows/<oid:oid>', ['PUT'], modify_show)
+    app.route('/shows/<oid:oid>', ['DELETE'], destroy_show)
+    app.route('/shows/<oid:oid>/blame', ['GET'], blame_show)
     app.route('/staff', ['GET'], load_staff)
-    app.route('/staff/<oid:re:[0-9a-f]{24}>', ['GET'], load_member)
-    app.route('/staff/<oid:re:[0-9a-f]{24}>/shows', ['GET'],
+    app.route('/staff/<oid:oid>', ['GET'], load_member)
+    app.route('/staff/<oid:oid>/shows', ['GET'],
               load_members_shows)
     app.route('/staff', ['POST'], create_member)
-    app.route('/staff/<oid:re:[0-9a-f]{24}>', ['PUT'], modify_member)
-    app.route('/staff/<oid:re:[0-9a-f]{24}>', ['DELETE'], destroy_member)
+    app.route('/staff/<oid:oid>', ['PUT'], modify_member)
+    app.route('/staff/<oid:oid>', ['DELETE'], destroy_member)"""
+
+class RESTfulCollection(object):
+    def __init__(self, collection):
+        self.collection = collection
+    def reply(self, data):
+        response.content_type = 'application/json'
+        return dumps(data)
+    def find_by_id(self, oid):
+        document = self.collection.find_one({'_id': oid})
+        if document:
+            return self.reply([document])
+        else:
+            raise HTTPError(404, 'Could not find document %s.' % str(oid))
+    def find(self, query=None, projection=None):
+        response.content_type = 'application/json'
+        return dumps([doc for doc in self.collection.find(query, projection)])
+    def create(self, document):
+        try:
+            oid = self.insert(document)
+        except Exception as e:
+            return "Could not insert document. "+e
+    #def modify(self, oid, 
+    def destroy(self, oid):
+        try:
+            self.collection.find_one({'_id': oid})
+        except:
+            return "No"
+        try:
+            info = self.remove(oid, safe=True)
+        except:
+            return "Something went terribly wrong. "+e
+        return info
 
 # Index page
 def index():
     return("<pre>Strawberries and cream, \nbiscuits and tea, \nwon't you join "
            "me \nin the oak tree?</pre>")
-
-class Collection(object):
-    def __init__(self, collection):
-        self.collection = collection
-        self.entries = self.collection.find()
-    def find_by_id(self, oid):
-        return [self.collection.find_one({'_id': ObjectId(oid)})]
-    def find(self, query=None, projection=None):
-        return self.collection.find(query, projection)
 
 def resolve_staff(show):
     for position in ('translator', 'editor', 'timer', 'typesetter'):
@@ -74,7 +140,7 @@ def load_shows(group=None):
                 {"status": {"$in": ["unaired", "airing", "incomplete"]}},
             'airing': { "status": "airing" },
             'aired': {"status": "airing", "progress.encoded": False,
-                "airtime": {"$lt": datetime.datetime.utcnow()}},
+                "airtime": {"$lt": dt.utcnow()}},
             'current_episodes': {"status": "airing",
                 "episodes": {"current": {"$gt": 0}}}
         }.get(group)
@@ -136,12 +202,6 @@ def modify_show(oid):
     # show.update({id: id}, {'$set': {show_data}})
     return show_data
 
-# Remove a show from the shows collection
-def destroy_show(oid):
-    #check if exists
-    # shows.remove({id: id})
-    return {'success': True}
-
 # Return information about who's stalling a show
 def blame_show(oid):
     #resolve id function here
@@ -162,23 +222,5 @@ def modify_member(oid):
     # staff.update({id: id}, {'$set': {member_data}})
     return member_data
 
-# Remove a member from the staff collection
-def destroy_member(oid):
-    # staff.remove({id: id})
-    return {'success': True}
-
-def prepare_json(ingredients):
-    response.content_type = 'application/json'
-    #for item in ingredients:
-        #item['_id'] = str(item['_id'])
-    return dumps(ingredients)
-
-install_routes(bottle)
-
-# Run app using the default wsgiref
-if __name__ == '__main__':
-    sb = settings['bottle']
-    bottle.run(host=sb['host'], port=sb['port'], debug=sb['debug'],
-               reloader=sb['reloader'])
-
-app = bottle.default_app()
+wagnaria = Wagnaria()
+app = wagnaria.app
