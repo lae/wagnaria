@@ -55,6 +55,10 @@ class Wagnaria(object):
         # ObjectId Filter
         self.app.router.add_filter('oid', lambda x: (r'[0-9a-f]{24}', ObjectId, str))
         self.install_routes(self.app)
+        # Assign most common "error" routes to a custom error handler.
+        errors = {sc: self.error_page for sc in range(400, 415)}
+        errors[500] = self.error_page
+        self.app.error_handler = errors
         # Run app using the default wsgiref
         if __name__ == '__main__':
             sb = []
@@ -69,6 +73,11 @@ class Wagnaria(object):
     def index(self):
         return("<pre>Strawberries and cream, \nbiscuits and tea, \nwon't you "
                "join me \nin the oak tree?</pre>")
+
+    # Return JSON documents when the application returns an HTTPError
+    def error_page(self, error):
+        response.content_type = 'application/json'
+        return dumps([{'status_code': error._status_code, 'message': error.body}])
 
     # Pre-define routes and their respective functions
     def install_routes(self, b):
@@ -96,7 +105,7 @@ class RESTfulCollection(object):
         self.collection = collection
     def reply(self, data):
         response.content_type = 'application/json'
-        return dumps(data)
+        return data
     def find_by_id(self, oid):
         document = self.collection.find_one({'_id': oid})
         if document:
@@ -122,12 +131,6 @@ class RESTfulCollection(object):
         except:
             return "Something went terribly wrong. "+e
         return info
-
-# Return JSON documents when the application returns an HTTPError
-@bottle.error(404)
-def missing_page(error):
-    response.content_type = 'application/json'
-    return dumps([{'status_code': error._status_code, 'message': error.body}])
 
 def resolve_staff(show):
     for position in ('translator', 'editor', 'timer', 'typesetter'):
