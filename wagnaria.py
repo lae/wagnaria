@@ -65,9 +65,14 @@ class Wagnaria(object):
                     sb.append("%s=%s" % (k, v))
             eval("bottle.default_app().run({0})".format(', '.join(sb)))
 
+    # Index page
+    def index(self):
+        return("<pre>Strawberries and cream, \nbiscuits and tea, \nwon't you "
+               "join me \nin the oak tree?</pre>")
+
     # Pre-define routes and their respective functions
     def install_routes(self, b):
-        #b.route('/', ['ANY'], self.index)
+        b.route('/', ['ANY'], self.index)
         b.route('/shows', ['GET'], self.shows.find)
         b.route('/shows/<oid:oid>', ['GET'], self.shows.find_by_id)
 """    app.route('/shows/<oid:oid>/<column:re:[a-z_.]+>', ['GET'],
@@ -118,10 +123,11 @@ class RESTfulCollection(object):
             return "Something went terribly wrong. "+e
         return info
 
-# Index page
-def index():
-    return("<pre>Strawberries and cream, \nbiscuits and tea, \nwon't you join "
-           "me \nin the oak tree?</pre>")
+# Return JSON documents when the application returns an HTTPError
+@bottle.error(404)
+def missing_page(error):
+    response.content_type = 'application/json'
+    return dumps([{'status_code': error._status_code, 'message': error.body}])
 
 def resolve_staff(show):
     for position in ('translator', 'editor', 'timer', 'typesetter'):
