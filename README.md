@@ -3,14 +3,14 @@
 Wagnaria is a WSGI application built on the [Bottle][] python web framework, 
 using MongoDB (and pymongo) as its datastore backend.
 
-## Requirements
+### Requirements
 - The [pymongo library][], and of course, MongoDB.
 
 Wagnaria uses wsgiref by default, but you may want to substitute a different  
 server for production. It's been developed with [gunicorn][] in mind, behind a 
 nginx proxy.
 
-## Configuration
+### Configuration
 Copy `config.yaml.example` to `config.yaml`, and modify keys as needed.
 
 Any keys added to `bottle_run` will be dynamically read by the application, so 
@@ -23,14 +23,17 @@ on localhost, port 9002, in debug mode. The application also connects to the
 changes (not recommended for production). For more information, see 
 [`bottle.run()`][].
 
-## Starting the application
+### Starting the application
 Standalone, which I use for debugging:
+
 	$PATH_TO/wagnaria.py
 
 As for Gunicorn, I use a socket and 4 workers:
+
 	gunicorn wagnaria:app --bind unix:/tmp/gunicorn-wagnaria.sock -w 4
 
 And bind it to nginx, using SSL:
+
 	upstream wagnaria {
 		server unix:/tmp/gunicorn-wagnaria.sock fail_timeout=0;
 	}
@@ -58,7 +61,7 @@ And bind it to nginx, using SSL:
 		}
 	}
 
-[bottle.py]: http://bottlepy.org
+[Bottle]: http://bottlepy.org
 [pymongo library]: http://api.mongodb.org/python/current/
 [gunicorn]: http://gunicorn.org
 [`bottle.run()`]: http://bottlepy.org/docs/dev/api.html#bottle.run
