@@ -93,13 +93,13 @@ class Wagnaria(object):
     def install_routes(self, b):
         """ Define routes to their select functions for a Bottle app. """
         b.route('/', 'ANY', self.index)
-        b.route('/shows', 'GET', self.shows.all_docs)
+        b.route(['/shows', '/shows/'], 'GET', self.shows.all_docs)
         b.route('/shows/ref', 'GET', self.shows.all_docs_short)
         b.route('/shows/<oid:oid>', 'GET', self.shows.by_id)
         b.route('/shows/<oid:oid>/blame', 'GET', self.shows.impute)
         b.route('/shows/<oid:oid>/<key:re:[a-z_.]+>', 'GET', self.shows.by_id)
         b.route('/shows/<group:re:[a-z_]+>', 'GET', self.shows.by_group)
-        b.route('/staff', 'GET', self.staff.all_docs)
+        b.route(['/staff', '/staff/], 'GET', self.staff.all_docs)
         b.route('/staff/ref', 'GET', self.staff.all_docs_short)
         b.route('/staff/<oid:oid>', 'GET', self.staff.by_id)
         b.route('/staff/<oid:oid>/shows', 'GET', self.staff.show_history)
