@@ -11,6 +11,8 @@ from bson.objectid import ObjectId
 import bottle
 from bottle import HTTPError, request, response
 
+POSITIONS = ('translator', 'editor', 'timer', 'typesetter')
+
 class Wagnaria(object):
     def __init__(self):
         # Default Settings. You can place overrides in config.yaml.
@@ -50,6 +52,7 @@ class Wagnaria(object):
             exit(1)
         # Load the database if it exists, create it if it doesn't.
         self.db = self.client[self.config['mongo']['name']]
+        self.staff = StaffCollection(self.db.staff, self.db.shows)
         self.shows = ShowsCollection(self.db.shows, self.db.staff)
         self.app = bottle.default_app()
         # ObjectId Filter
@@ -77,25 +80,25 @@ class Wagnaria(object):
     # Return JSON documents when the application returns an HTTPError
     def error_page(self, error):
         response.content_type = 'application/json'
-        return dumps([{'status_code': error._status_code, 'message': error.body}])
+        return dumps({'status_code': error._status_code, 'message': error.body})
 
     # Pre-define routes and their respective functions
     def install_routes(self, b):
-        b.route('/', ['ANY'], self.index)
-        b.route('/shows', ['GET'], self.shows.find)
-        b.route('/shows/<oid:oid>', ['GET'], self.shows.find_by_id)
-"""    app.route('/shows/<oid:oid>/<column:re:[a-z_.]+>', ['GET'],
-              load_show)
-    app.route('/shows/<group:re:[a-z_]+>', ['GET'],
-              load_shows)
+        b.route('/', 'ANY', self.index)
+        b.route('/shows', 'GET', self.shows.all_docs)
+        b.route('/shows/ref', 'GET', self.shows.all_docs_short)
+        b.route('/shows/<oid:oid>', 'GET', self.shows.by_id)
+        b.route('/shows/<oid:oid>/blame', 'GET', self.shows.impute)
+        b.route('/shows/<oid:oid>/<key:re:[a-z_.]+>', 'GET', self.shows.by_id)
+        b.route('/shows/<group:re:[a-z_]+>', 'GET', self.shows.by_group)
+        b.route('/staff', 'GET', self.staff.all_docs)
+        b.route('/staff/ref', 'GET', self.staff.all_docs_short)
+        b.route('/staff/<oid:oid>', 'GET', self.staff.by_id)
+        b.route('/staff/<oid:oid>/shows', 'GET', self.staff.show_history)
+"""    
     app.route('/shows', ['POST'], create_show)
     app.route('/shows/<oid:oid>', ['PUT'], modify_show)
     app.route('/shows/<oid:oid>', ['DELETE'], destroy_show)
-    app.route('/shows/<oid:oid>/blame', ['GET'], blame_show)
-    app.route('/staff', ['GET'], load_staff)
-    app.route('/staff/<oid:oid>', ['GET'], load_member)
-    app.route('/staff/<oid:oid>/shows', ['GET'],
-              load_members_shows)
     app.route('/staff', ['POST'], create_member)
     app.route('/staff/<oid:oid>', ['PUT'], modify_member)
     app.route('/staff/<oid:oid>', ['DELETE'], destroy_member)"""
@@ -106,15 +109,24 @@ class RESTfulCollection(object):
     def reply(self, data):
         response.content_type = 'application/json'
         return dumps(data)
-    def find_by_id(self, oid):
-        document = self.collection.find_one(oid)
+    def find_by_id(self, oid, projection=None):
+        document = self.collection.find_one(oid, projection)
         if document:
-            return self.reply([document])
+            return document
         else:
             raise HTTPError(404, 'Could not find document %s.' % str(oid))
     def find(self, query=None, projection=None):
-        return self.reply([doc for doc in self.collection.find(query, projection)])
+        documents = [d for d in self.collection.find(query, projection)]
+        if documents:
+            return documents
+        else:
+            raise HTTPError(404, 'No documents matched. Query: ' + vars(query))
+    def all_docs(self):
+        return self.reply(self.find())
+    def by_id(self, oid):
+        return self.reply(self.find_by_id(oid))
     def create(self, document):
+        #show_data = request.json
         try:
             oid = self.insert(document)
         except Exception as e:
@@ -136,24 +148,32 @@ class ShowsCollection(RESTfulCollection):
         self.collection = shows_collection
         self.staff = staff_collection
     def resolve_staff(self, show):
-        for position in ('translator', 'editor', 'timer', 'typesetter'):
+        for position in POSITIONS:
             member = show['staff'][position]
             if 'name' not in member:
                 member['name'] = self.staff.find_one(member['id'])['name']
         return show
-    def find_by_id(self, oid):
-        document = self.collection.find_one(oid)
-        if document:
-            return self.reply([self.resolve_staff(document)])
-        else:
-            raise HTTPError(404, 'Could not find document %s.' % str(oid))
-    def find(self, query=None, projection=None):
-        shows = [doc for doc in self.collection.find(query, projection)]
+    def by_id(self, oid, key=None):
+        show = self.resolve_staff(self.find_by_id(oid))
+        if key:
+            for k in key.split('.'):
+                if k in show:
+                    show = show[k]
+                else:
+                    show = False
+            if show:
+                show = {'_id': oid, key: show}
+            else:
+                raise HTTPError(404, "%s is undefined for this show." % key)
+        return self.reply(show)
+    def all_docs(self):
+        shows = self.find()
         shows = map(lambda s: self.resolve_staff(s), shows)
         return self.reply(shows)
-# Return a list of shows
-def load_shows(group=None):
-    if group:
+    def all_docs_short(self):
+        shows = self.find(None, {'titles': 1})
+        return self.reply(shows)
+    def by_group(self, group):
         query = {
             'complete': {"status": "complete"},
             'incomplete': 
@@ -166,81 +186,51 @@ def load_shows(group=None):
         }.get(group)
         if not query:
             raise HTTPError(404, 'Group "{0}" does not exist.'.format(group))
-        shows = db.shows.find(query)
-    else:
-        shows = db.shows.find()
-    shows = map(lambda s: resolve_staff(s), shows)
-    return prepare_json(shows)
+        shows = self.find(query)
+        shows = map(lambda s: self.resolve_staff(s), shows)
+        return self.reply(shows)
+    def impute(self, oid):
+        # Return information about who's stalling a show
+        show = self.resolve_staff(self.find_by_id(oid))
+        p = show['progress']
+        at = {'_id': oid}
+        if show['status'] == 'complete':
+            at['position'] = 'complete'
+        elif show['airtime'] > dt.utcnow():
+            at['position'] = 'broadcaster'
+            at['name'] = show['channel']
+        elif not p['translated']:
+            at['position'] = 'translator'
+        elif not p['encoded']:
+            at['position'] = 'encoding'
+        elif not p['edited']:
+            at['position'] = 'editor'
+        elif not p['timed']:
+            at['position'] = 'timer'
+        elif not p['typeset']:
+            at['position'] = 'typesetter'
+        elif not p['qc']:
+            at['position'] = 'qc'
+        if at['position'] in POSITIONS:
+            at['name'] = show['staff'][at['position']]['name']
+            if 'id' in show['staff'][at['position']]:
+                at['staff_id'] = show['staff'][at['position']]['id']
+        return self.reply(at)
 
-# Return a show
-def load_show(oid, column=None):
-    show = [db.shows.find_one({'_id': ObjectId(oid)})]
-    if not show:
-        raise HTTPError(404, 'There is no show with an ObjectId of %s.' % oid)
-    if not column:
-        show = map(lambda s: resolve_staff(s), show)
-        return prepare_json(show)
-    else:
-        field = db.shows.find_one({'_id': ObjectId(oid)},
-                                  {column: 1, '_id': 0})
-        if not field:
-            raise HTTPError(404, 'The "%s" field does not exist for %s' %
-                            column, show['titles']['english'])
-        return prepare_json([field])
+class StaffCollection(RESTfulCollection):
+    def __init__(self, staff_collection, shows_collection):
+        self.collection = staff_collection
+        self.shows = shows_collection
+    def all_docs_short(self):
+        staff = self.find(None, {'name': 1})
+        return self.reply(staff)
+    def show_history(self, oid):
+        # Return a list of shows a staff member has worked on
+        query = [{'staff.%s.id' % p: oid} for p in POSITIONS]
+        results = self.shows.find({'$or': query})
+        shows = map(lambda s: s['titles']['english'], results)
+        return self.reply(shows)
 
-# Return a member's information
-def load_member(oid):
-    member = db.staff.find_one({'_id': ObjectId(oid)})
-    if not member:
-        raise HTTPError(404, 'There is no staff with an ObjectId of %s.' % oid)
-    return prepare_json([member])
-
-# Return a list of all staff
-def load_staff():
-    staff = db.staff.find()
-    return prepare_json(staff)
-
-# Return a list of shows a staff member has worked on
-def load_members_shows(oid):
-    oid = ObjectId(oid)
-    results = db.shows.find({'$or': [{'staff.{0}.id'.format(p): oid} for p in 
-        ('translator', 'editor', 'timer', 'typesetter')]})
-    shows = map(lambda s: s['titles']['english'], results)
-    return prepare_json(shows)
-
-# Insert a new show into the shows collection
-def create_show():
-    show_data = request.json
-    #sanitization
-    # shows.save(show_data)
-    return show_data
-
-# Update a show's metadata
-def modify_show(oid):
-    show_data = request.json
-    #sanitization, set values for null data
-    # show.update({id: id}, {'$set': {show_data}})
-    return show_data
-
-# Return information about who's stalling a show
-def blame_show(oid):
-    #resolve id function here
-    # shows.find({id: id})
-    return "Return whoever is stalling show '{0}'.".format(oid)
-
-# Insert a new member into the staff collection
-def create_member():
-    member_data = request.json
-    #sanitization
-    # staff.save(member_data)
-    return member_data
-
-# Update a member's metadata
-def modify_member(oid):
-    member_data = request.json
-    #sanitization, set values for null data
-    # staff.update({id: id}, {'$set': {member_data}})
-    return member_data
 
 wagnaria = Wagnaria()
 app = wagnaria.app
