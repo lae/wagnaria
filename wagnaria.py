@@ -128,7 +128,8 @@ class RESTfulCollection(object):
         if documents:
             return documents
         else:
-            raise HTTPError(404, 'No documents matched. Query: ' + vars(query))
+            raise HTTPError(404, 'No documents matched. Query: %s' %
+                            str.replace(dumps(query), '\"', "'"))
 
     def all_docs(self):
         """ Return all documents in the collection. """
