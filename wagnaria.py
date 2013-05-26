@@ -99,10 +99,12 @@ class Wagnaria(object):
         b.route('/shows/<oid:oid>/blame', 'GET', self.shows.impute)
         b.route('/shows/<oid:oid>/<key:re:[a-z_.]+>', 'GET', self.shows.by_id)
         b.route('/shows/<group:re:[a-z_]+>', 'GET', self.shows.by_group)
-        b.route(['/staff', '/staff/], 'GET', self.staff.all_docs)
+        b.route('/shows/<oid:oid>', 'DELETE', self.shows.destroy)
+        b.route(['/staff', '/staff/'], 'GET', self.staff.all_docs)
         b.route('/staff/ref', 'GET', self.staff.all_docs_short)
         b.route('/staff/<oid:oid>', 'GET', self.staff.by_id)
         b.route('/staff/<oid:oid>/shows', 'GET', self.staff.show_history)
+        b.route('/staff/<oid:oid>', 'DELETE', self.staff.destroy)
 
 class RESTfulCollection(object):
     """ Defines common web functions for use with MongoDB collections """
@@ -138,6 +140,15 @@ class RESTfulCollection(object):
     def by_id(self, oid):
         """ Return a single document in the collection. """
         return self.reply(self.find_by_id(oid))
+
+    def destroy(self, oid):
+        """ Remove a document in the collection. """
+        result = self.collection.remove(oid, safe=True)
+        if result['n'] == 1:
+            return self.reply({'status_code': 200, '_id': oid,
+                               'message': 'Document successfully deleted.'})
+        else:
+            raise HTTPError(404, 'Could not find document %s.' % str(oid))
 
 class ShowsCollection(RESTfulCollection):
     """ Extends RESTfulCollection for the shows collection """
