@@ -6,7 +6,7 @@ using MongoDB (and pymongo) as its datastore backend.
 ### Requirements
 - The [pymongo library][], and of course, MongoDB.
 
-Wagnaria uses wsgiref by default, but you may want to substitute a different  
+Wagnaria uses wsgiref by default, but you may want to substitute a different 
 server for production. It's been developed with [gunicorn][] in mind, behind a 
 nginx proxy.
 
@@ -19,9 +19,7 @@ you can also specify additional parameters for [`bottle.run()`][] if you'd like
 
 The defaults (if you don't copy the example over) are to start the application 
 on localhost, port 9002, in debug mode. The application also connects to the 
-`wagnaria` MongoDB on localhost:27017. By default, it also reloads on file 
-changes (not recommended for production). For more information, see 
-[`bottle.run()`][].
+`wagnaria` MongoDB on localhost:27017. For more information, see [`bottle.run()`][].
 
 ### Starting the application
 Standalone, which I use for debugging:
