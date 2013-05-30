@@ -234,6 +234,7 @@ class ShowsCollection(RESTfulCollection):
             at['name'] = show['staff'][at['position']]['name']
             if 'id' in show['staff'][at['position']]:
                 at['staff_id'] = show['staff'][at['position']]['id']
+        at['episode'] = show['episodes']['current']
         return self.reply(at)
 
 class StaffCollection(RESTfulCollection):
