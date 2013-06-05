@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wagnaria!</title>
+    <!--link rel="stylesheet" href="css/main.css" /-->
+    <meta charset="utf-8" />
+</head>
+<body>
+
+<div id="showlist"></div>
+
+<!-- JavaScript -->
+<script src="lib/jquery-2.0.1.min.js"></script>
+<script src="lib/jquery.hotkeys.js"></script>
+<script src="lib/underscore-min.js"></script>
+<script src="lib/backbone-min.js"></script>
+<script src="js/main.js"></script>
+
+<!-- Templates -->
+<script type="text/template" id="tpl-show-list-item">
+    <a href="#"><%= titles.english %></a>
+</script>
+<script type="text/template" id="tpl-show-info">
+    <%= titles.english %>
+</script>
+
+</body>
+</html>
