@@ -1,32 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>Wagnaria!</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Bootstrap -->
   <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-  <style>
-    body {
-      padding-top: 60px;
-      padding-bottom: 40px;
-    }
-    .sidebar-nav {
-      padding: 9px 0;
-    }
-    @media (max-width: 980px) {
-      /* Enable use of floated navbar text */
-      .navbar-text.pull-right {
-        float: none;
-        padding-left: 5px;
-        padding-right: 5px;
-      }
-    }
+  <style type="text/css">
+    body { padding-top: 60px; }
+    table { table-layout: fixed; }
+    #muffinbox tr td:first-child { width: 30%; }
   </style>
   <link href="css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
-  <!--link rel="stylesheet" href="css/main.css" /-->
-  <style type="text/css">
-    #muffinbox tr td:nth-child(4) { width: 25%; }
-  </style>
   <meta charset="utf-8" />
 </head>
 <body>
@@ -34,17 +18,26 @@
   <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
-      <a class="brand" href="#">Wagnaria</a>
-      <ul class="nav">
-        <li class="active"><a href="#">Airing</a></li>
-        <li><a href="#shows/complete">Completed</a></li>
-        <li><a href="#staff">Staff</a></li>
-      </ul>
+        <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <span class="brand">Wagnaria</span>
+        <div class="nav-collapse collapse">
+          <ul class="nav">
+            <li id="nav_airing"><a href="#">Airing</a></li>
+            <li id="nav_complete"><a href="#shows/complete">Completed</a></li>
+            <li id="nav_staff"><a href="#staff">Staff</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
       </div>
     </div>
   </div>
+
   <div class="container">
-    <table class="table" id="muffinbox"></table>
+    <div id="muffinbox"></div>
+    <p class="text-right text-info">Times are local.</p>
   </div>
   <div id="muffin" class="modal hide fade" data-keyboard="true"></div>
   
@@ -60,12 +53,21 @@
   <script src="js/main.js"></script>
 
   <!-- Templates -->
-  <script type="text/template" id="tpl-show-list-item">
-    <td><a href="#shows/<%= id %>"><%= titles.english %></a></td>
-    <td><%= jst_date %></td>
+  <script type="text/template" id="tpl-airing-item">
+    <td><%= titles.english %></td>
     <td><%= local_date %></td>
     <td id="<%= id %>_cd"><%= eta %></td>
     <td><%= blame %></td>
+  </script>
+  <script type="text/template" id="tpl-complete-item">
+    <td><%= titles.english %></td>
+    <td><%= local_date %></td>
+    <td><%= episodes.total %> episodes</td>
+    <td><%= channel %></td>
+    <td><%= staff.translator.name %></td>
+    <td><%= staff.editor.name %></td>
+    <td><%= staff.timer.name %></td>
+    <td><%= staff.typesetter.name %></td>
   </script>
   <script type="text/template" id="tpl-show-details">
     <div class="modal-header">

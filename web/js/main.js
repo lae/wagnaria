@@ -29,9 +29,9 @@ $(function(){
                 }
                 var st = this.get('staff');
                 switch(false) {
-                    case progress.encoded: blame = 'Encode'; break;
+                    case progress.encoded: blame = 'Encoding'; break;
                     case progress.translated: blame = 'Translation ('+st.translator.name+')'; break;
-                    case progress.edited: blame = 'Edit ('+st.editor.name+')'; break;
+                    case progress.edited: blame = 'Editing ('+st.editor.name+')'; break;
                     case progress.timed: blame = 'Timing ('+st.timer.name+')'; break;
                     case progress.typeset: blame = 'Typesetting ('+st.typesetter.name+')'; break;
                     case progress.qc: blame = 'Quality Control'; break;
@@ -66,38 +66,56 @@ $(function(){
                 :                  0;
         }
     });
-    var ShowListView = Backbone.View.extend({
+    var ShowsView = Backbone.View.extend({
         tagName: "table",
         className: "table table-bordered table-hover",
-        initialize: function() {
+        initialize: function(obj, type) {
             this.model.bind("reset", this.render, this);
+            this.type = type;
             var self = this;
-            this.model.bind("add", function (show) {
-                $(self.el).append(new ShowListItemView({model: show}).render().el);
-            });
+            this.model.bind("add", function(show) { self.itemview(show, self) });
         },
         render: function(eventName) {
-            _.each(this.model.models, function(show) {
-                $(this.el).append(new ShowListItemView({model: show}).render().el);
-            }, this);
+            var self = this;
+            _.each(this.model.models, function(show) { self.itemview(show, self) }, this);
+            switch(this.type) {
+                case "airing": thead = "<th>Series</th><th>Airtime</th><th>Time 'til Air</th><th>Status</th>"; break;
+                case "complete": thead = "<th>Series</th><th>Last Aired</th><th>Episodes</th><th>Channel</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th>"; break;
+            }
+            thead = '<thead><tr>'+thead+'</tr></thead>';
+            $(this.el).prepend(thead);
             return this;
-        }
+        },
+        itemview: function(show, self) {
+            switch(self.type) {
+                case "airing": item = new AiringItemView({model: show}); break;
+                case "complete": item = new CompleteItemView({model: show}); break;
+            }
+            $(self.el).append(item.render().el);
+        },
     });
-    var ShowListItemView = Backbone.View.extend({
+    var ItemView = Backbone.View.extend({
         tagName: "tr",
-        template: _.template($('#tpl-show-list-item').html()),
-        initialize: function() {
+        initialize: function(attr) {
             this.model.bind("change", this.render, this);
             this.model.bind("destroy", this.close, this);
         },
         render: function(eventName) {
             $(this.el).html(this.template(this.model.toJSONDecorated()));
+            var sid = this.model.id;
+            $(this.el).click(function() { app.navigate('shows/'+sid, true); });
             return this;
         },
         close: function() {
             $(this.el).unbind();
             $(this.el).remove();
         }
+    });
+    var AiringItemView = ItemView.extend({
+        template: _.template($("#tpl-airing-item").html())
+    });
+    var CompleteItemView = ItemView.extend({
+        template: _.template($("#tpl-complete-item").html())
     });
     var ShowDetailView = Backbone.View.extend({
         template: _.template($('#tpl-show-details').html()),
@@ -108,26 +126,53 @@ $(function(){
     });
     var AppRouter = Backbone.Router.extend({
         routes: {
-            "": "muffinbox",
+            "": "airing",
+            "shows/complete": "completed",
             "shows/:id": "muffin"
         },
-        muffinbox: function() {
-            if (this.showList == null) {
-                this.showList = new Shows("shows/airing");
+        loadShows: function(showsToLoad) {
+            if (this.loadedShows != showsToLoad) {
+                this.loadedShows = showsToLoad;
+                this.showList = new Shows(this.loadedShows);
                 this.showList.fetch({async: false});
-                this.showListView = new ShowListView({model: this.showList});
-                $('#muffinbox').html(this.showListView.render().el);
             }
             else if ($('#muffin').data('modal').isShown) { $('#muffin').modal('hide'); }
         },
         muffin: function(id) {
-            if (this.showList == null) { this.muffinbox(); }
-            this.show = this.showList.get(id);
+            if (this.showList == null) {
+                this.show = new Show({id: id});
+                this.show.fetch({async: false});
+                switch(this.show.get('status')) {
+                    case 'complete': this.completed(); break;
+                    default: this.airing(); break;
+                }
+            }
+            else { this.show = this.showList.get(id); }
             this.showDetails = new ShowDetailView({model: this.show});
             $('#muffin').html(this.showDetails.render().el);
             $('#muffin').modal('show');
             self = this;
-            $('#muffin').on('hide', function() { self.navigate('', {trigger: true}); });
+            $('#muffin').on('hide', function() {
+                console.log(self.loadedShows);
+                switch(self.loadedShows) {
+                    case 'shows/complete': loc = 'shows/complete'; break;
+                    default: loc = ''; break;
+                }
+                self.navigate(loc, {trigger: true}); });
+        },
+        airing: function() {
+            $('#nav_airing').addClass('active');
+            $('#nav_complete').removeClass('active');
+            this.loadShows("shows/airing");
+            this.showsView = new ShowsView({model: this.showList}, "airing");
+            $('#muffinbox').html(this.showsView.render().el);
+        },
+        completed: function() {
+            $('#nav_complete').addClass('active');
+            $('#nav_airing').removeClass('active');
+            this.loadShows("shows/complete");
+            this.showsView = new ShowsView({model: this.showList}, "complete");
+            $('#muffinbox').html(this.showsView.render().el);
         }
     });
     var app = new AppRouter();
