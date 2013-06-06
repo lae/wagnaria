@@ -29,7 +29,7 @@
 <body>
 
 
-  <div class="container-fluid">
+  <div class="container">
     <table class="table" id="muffinbox"></table>
   </div>
   <div id="muffin" class="modal hide fade" data-keyboard="true"></div>
@@ -39,6 +39,7 @@
   <script src="lib/jquery.hotkeys.js"></script>
   <script src="lib/moment.min.js"></script>
   <script src="lib/moment.ja.js"></script>
+  <script src="lib/countdown.min.js"></script>
   <script src="lib/bootstrap.min.js"></script>
   <script src="lib/underscore-min.js"></script>
   <script src="lib/backbone-min.js"></script>
@@ -46,11 +47,11 @@
 
   <!-- Templates -->
   <script type="text/template" id="tpl-show-list-item">
-    <td><a href="#shows/<%- id %>"><%= titles.english %></a></td>
+    <td><a href="#shows/<%= id %>"><%= titles.english %></a></td>
     <td><%= jst_date %></td>
     <td><%= local_date %></td>
-    <td>Who knows what the ETA is?</td>
-    <td><%= id %></td>
+    <td id="<%= id %>_cd"><%= eta %></td>
+    <td><%= blame %></td>
   </script>
   <script type="text/template" id="tpl-show-details">
     <div class="modal-header">

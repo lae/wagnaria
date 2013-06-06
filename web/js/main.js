@@ -10,15 +10,44 @@ $(function(){
         toJSONDecorated: function(){
             var air = moment(this.get("airtime").$date);
             var airJST = air.clone().utc().lang('ja').add('hours', +9);
+            var now = moment();
+            var self = this;
+            if (now.isBefore(air)) {
+                var s_tl = s_ed = s_tm = s_ts = 'muted';
+                var blame = "Pre-Broadcast (" + this.get("channel") + ")";
+                var cdobj = countdown(air, function(ts) { eta = ts; $('#'+self.id+'_cd').html(eta.toHTML()); }, countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS, 3);
+            }
+            else {
+                var s_tl = s_ed = s_tm = s_ts = 'text-error';
+                progress = this.get("progress");
+                var eta = "Aired 'n Subbing"
+                switch(true) {
+                    case progress.translated: s_tl = 'text-success';
+                    case progress.edited: s_ed = 'text-success';
+                    case progress.timed: s_tm = 'text-success';
+                    case progress.typeset: s_ts = 'text-success';
+                }
+                var st = this.get('staff');
+                switch(false) {
+                    case progress.encoded: blame = 'Encode'; break;
+                    case progress.translated: blame = 'Translation ('+st.translator.name+')'; break;
+                    case progress.edited: blame = 'Edit ('+st.editor.name+')'; break;
+                    case progress.timed: blame = 'Timing ('+st.timer.name+')'; break;
+                    case progress.typeset: blame = 'Typesetting ('+st.typesetter.name+')'; break;
+                    case progress.qc: blame = 'Quality Control'; break;
+                }
+            }
             return _.extend(this.toJSON(), {
                 local_date: air.format('llll'),
                 jst_date: airJST.format('llll'),
+                eta: eta,
+                blame: blame,
                 classes: {
                     status: {
-                        tl: 'muted',
-                        ed: 'muted',
-                        tm: 'muted',
-                        ts: 'muted'
+                        tl: s_tl,
+                        ed: s_ed,
+                        tm: s_tm,
+                        ts: s_ts
                     }
                 }
             });
@@ -78,7 +107,6 @@ $(function(){
             this.showList.fetch({async: false});
             this.showListView = new ShowListView({model: this.showList});
             $('#muffinbox').html(this.showListView.render().el);
-            
         },
         muffin: function(id) {
             this.muffinbox();
