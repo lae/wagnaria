@@ -55,7 +55,14 @@ $(function(){
     });
     var Shows = Backbone.Collection.extend({
         model: Show,
-        url: "/shows"
+        url: "/shows",
+        comparator: function(a, b) {
+            a = moment(a.get('airtime').$date);
+            b = moment(b.get('airtime').$date);
+            return a.isAfter(b) ?  1
+                : a.isBefore(b) ? -1
+                :                  0;
+        }
     });
     var ShowListView = Backbone.View.extend({
         tagName: "table",
