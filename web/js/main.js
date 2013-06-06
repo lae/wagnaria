@@ -14,11 +14,13 @@ $(function(){
             var self = this;
             if (now.isBefore(air)) {
                 var s_tl = s_ed = s_tm = s_ts = 'muted';
+                var s_air = 'info';
                 var blame = "Pre-Broadcast (" + this.get("channel") + ")";
                 var cdobj = countdown(air, function(ts) { eta = ts; $('#'+self.id+'_cd').html(eta.toHTML()); }, countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS, 3);
             }
             else {
                 var s_tl = s_ed = s_tm = s_ts = 'text-error';
+                var s_air = 'error';
                 progress = this.get("progress");
                 var eta = "Aired 'n Subbing"
                 if (progress.translated) { s_tl = 'text-success'; }
@@ -32,7 +34,7 @@ $(function(){
                     case progress.edited: blame = 'Editing ('+st.editor.name+')'; break;
                     case progress.timed: blame = 'Timing ('+st.timer.name+')'; break;
                     case progress.typeset: blame = 'Typesetting ('+st.typesetter.name+')'; break;
-                    case progress.qc: blame = 'Quality Control'; break;
+                    case progress.qc: blame = 'Quality Control'; s_air = 'success'; break;
                 }
             }
             return _.extend(this.toJSON(), {
@@ -42,6 +44,7 @@ $(function(){
                 blame: blame,
                 classes: {
                     status: {
+                        air: s_air,
                         tl: s_tl,
                         ed: s_ed,
                         tm: s_tm,
@@ -78,7 +81,7 @@ $(function(){
             _.each(this.model.models, function(show) { self.itemview(show, self) }, this);
             switch(this.type) {
                 case "airing": thead = "<th>Series</th><th>Airtime</th><th>Time 'til Air</th><th>Status</th>"; break;
-                case "complete": thead = "<th>Series</th><th>Last Aired</th><th>Episodes</th><th>Channel</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th>"; break;
+                case "complete": thead = "<th>Series</th><th>Last Aired</th><th>Episodes</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th>"; break;
             }
             thead = '<thead><tr>'+thead+'</tr></thead>';
             $(this.el).prepend(thead);
@@ -99,10 +102,14 @@ $(function(){
             this.model.bind("destroy", this.close, this);
         },
         render: function(eventName) {
-            $(this.el).html(this.template(this.model.toJSONDecorated()));
+            this.prerender(eventName);
+            return this;
+        },
+        prerender: function(eventName) {
+            this.jsondeco = this.model.toJSONDecorated();
+            $(this.el).html(this.template(this.jsondeco));
             var sid = this.model.id;
             $(this.el).click(function() { app.navigate('shows/'+sid, true); });
-            return this;
         },
         close: function() {
             $(this.el).unbind();
@@ -110,7 +117,12 @@ $(function(){
         }
     });
     var AiringItemView = ItemView.extend({
-        template: _.template($("#tpl-airing-item").html())
+        template: _.template($("#tpl-airing-item").html()),
+        render: function(eventName) {
+            this.prerender(eventName);
+            $(this.el).addClass(this.jsondeco.classes.status.air);
+            return this;
+        }
     });
     var CompleteItemView = ItemView.extend({
         template: _.template($("#tpl-complete-item").html())

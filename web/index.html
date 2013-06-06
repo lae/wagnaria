@@ -8,7 +8,7 @@
   <style type="text/css">
     body { padding-top: 60px; }
     table { table-layout: fixed; }
-    #muffinbox tr td:first-child { width: 30%; }
+    #muffinbox th:first-child { width: 25%; }
   </style>
   <link href="css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
   <meta charset="utf-8" />
@@ -64,8 +64,7 @@
   <script type="text/template" id="tpl-complete-item">
     <td><%= titles.english %></td>
     <td><%= local_date %></td>
-    <td><%= episodes.total %> episodes</td>
-    <td><%= channel %></td>
+    <td><%= episodes.total %></td>
     <td><%= staff.translator.name %></td>
     <td><%= staff.editor.name %></td>
     <td><%= staff.timer.name %></td>
