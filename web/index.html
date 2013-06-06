@@ -1,28 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Wagnaria!</title>
-    <!--link rel="stylesheet" href="css/main.css" /-->
-    <meta charset="utf-8" />
+  <title>Wagnaria!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bootstrap -->
+  <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <style>
+    body {
+      padding-top: 60px;
+      padding-bottom: 40px;
+    }
+    .sidebar-nav {
+      padding: 9px 0;
+    }
+    @media (max-width: 980px) {
+      /* Enable use of floated navbar text */
+      .navbar-text.pull-right {
+        float: none;
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+    }
+  </style>
+  <link href="css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
+  <!--link rel="stylesheet" href="css/main.css" /-->
+  <meta charset="utf-8" />
 </head>
 <body>
 
-<div id="showlist"></div>
 
-<!-- JavaScript -->
-<script src="lib/jquery-2.0.1.min.js"></script>
-<script src="lib/jquery.hotkeys.js"></script>
-<script src="lib/underscore-min.js"></script>
-<script src="lib/backbone-min.js"></script>
-<script src="js/main.js"></script>
+  <div class="container-fluid">
+    <table class="table" id="showlist"></table>
+  </div>
+  <div id="muffin" class="modal hide fade"></div>
+  
+  <!-- JavaScript -->
+  <script src="lib/jquery-2.0.1.min.js"></script>
+  <script src="lib/jquery.hotkeys.js"></script>
+  <script src="lib/moment.min.js"></script>
+  <script src="lib/moment.ja.js"></script>
+  <script src="lib/bootstrap.min.js"></script>
+  <script src="lib/underscore-min.js"></script>
+  <script src="lib/backbone-min.js"></script>
+  <script src="js/main.js"></script>
 
-<!-- Templates -->
-<script type="text/template" id="tpl-show-list-item">
-    <a href="#"><%= titles.english %></a>
-</script>
-<script type="text/template" id="tpl-show-info">
-    <%= titles.english %>
-</script>
+  <!-- Templates -->
+  <script type="text/template" id="tpl-show-list-item">
+    <td><a href="#shows/<%- id %>"><%= titles.english %></a></td>
+    <td><%= jst_date %></td>
+    <td><%= local_date %></td>
+    <td>Who knows what the ETA is?</td>
+    <td><%= id %></td>
+  </script>
+  <script type="text/template" id="tpl-show-details">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <h2><%= titles.english %></h2>
+    </div>
+    <div class="modal-body">
+      <p>idk</p>
+    </div>
+  </script>
 
 </body>
 </html>
