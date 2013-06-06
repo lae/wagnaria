@@ -55,7 +55,9 @@ $(function(){
     });
     var Shows = Backbone.Collection.extend({
         model: Show,
-        url: "/shows",
+        initialize: function(url) {
+            this.url = url;
+        },
         comparator: function(a, b) {
             a = moment(a.get('airtime').$date);
             b = moment(b.get('airtime').$date);
@@ -111,7 +113,7 @@ $(function(){
         },
         muffinbox: function() {
             if (this.showList == null) {
-                this.showList = new Shows();
+                this.showList = new Shows("shows/airing");
                 this.showList.fetch({async: false});
                 this.showListView = new ShowListView({model: this.showList});
                 $('#muffinbox').html(this.showListView.render().el);
