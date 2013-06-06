@@ -30,9 +30,9 @@
 
 
   <div class="container-fluid">
-    <table class="table" id="showlist"></table>
+    <table class="table" id="muffinbox"></table>
   </div>
-  <div id="muffin" class="modal hide fade"></div>
+  <div id="muffin" class="modal hide fade" data-keyboard="true"></div>
   
   <!-- JavaScript -->
   <script src="lib/jquery-2.0.1.min.js"></script>
@@ -55,10 +55,24 @@
   <script type="text/template" id="tpl-show-details">
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-      <h2><%= titles.english %></h2>
+      <h3><%= titles.english %></h3>
     </div>
     <div class="modal-body">
-      <p>idk</p>
+      <dl class="dl-horizontal">
+        <dt>Japanese Title</dt><dd><%= titles.japanese %></dd>
+        <dt>Short Title/Abbr.</dt><dd><%= titles.short %></dd>
+        <dt>Airtime (JST)</dt><dd><%= jst_date %></dd>
+        <dt>Airtime (Local)</dt><dd><%= local_date %></dd>
+        <dt>Episode Count</dt><dd><%= episodes.current %> / <%= episodes.total %></dd>
+        <dt>Channel</dt><dd><%= channel %></dd>
+      </dl>
+      <h4>Staff</h4>
+      <dl class="dl-horizontal">
+        <dt>Translator</dt><dd class="<%= classes.status.tl %>"><%= staff.translator.name %></dd>
+        <dt>Editor</dt><dd class="<%= classes.status.ed %>"><%= staff.editor.name %></dd>
+        <dt>Timer</dt><dd class="<%= classes.status.tm %>"><%= staff.timer.name %></dd>
+        <dt>Typesetter</dt><dd class="<%= classes.status.ts %>"><%= staff.typesetter.name %></dd>
+      </dl>
     </div>
   </script>
 

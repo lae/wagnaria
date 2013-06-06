@@ -1,8 +1,5 @@
-moment.fn.formatInZone = function(format, offset) {
-    return this.clone().utc().add('hours', offset).format(format);
-}
-
 $(function(){
+    moment.lang('en');
     var Show = Backbone.Model.extend({
         urlRoot: '/shows',
         parse: function(res) {
@@ -11,9 +8,19 @@ $(function(){
             return res;
         },
         toJSONDecorated: function(){
+            var air = moment(this.get("airtime").$date);
+            var airJST = air.clone().utc().lang('ja').add('hours', +9);
             return _.extend(this.toJSON(), {
-                local_date: moment(this.get("airtime").$date).lang('en').format('llll'),
-                jst_date: moment(this.get("airtime").$date).lang('ja').formatInZone('llll', +9)
+                local_date: air.format('llll'),
+                jst_date: airJST.format('llll'),
+                classes: {
+                    status: {
+                        tl: 'muted',
+                        ed: 'muted',
+                        tm: 'muted',
+                        ts: 'muted'
+                    }
+                }
             });
 }
     });
@@ -56,11 +63,8 @@ $(function(){
     });
     var ShowDetailView = Backbone.View.extend({
         template: _.template($('#tpl-show-details').html()),
-        events: {
-            "click .close": "close"
-        },
         render: function(eventName) {
-            $(this.el).html(this.template(this.model.toJSON()));
+            $(this.el).html(this.template(this.model.toJSONDecorated()));
             return this;
         }
     });
@@ -73,7 +77,8 @@ $(function(){
             this.showList = new Shows();
             this.showList.fetch({async: false});
             this.showListView = new ShowListView({model: this.showList});
-            $('#showlist').html(this.showListView.render().el);
+            $('#muffinbox').html(this.showListView.render().el);
+            
         },
         muffin: function(id) {
             this.muffinbox();
@@ -81,6 +86,8 @@ $(function(){
             this.showDetails = new ShowDetailView({model: this.show});
             $('#muffin').html(this.showDetails.render().el);
             $('#muffin').modal('show');
+            self = this;
+            $('#muffin').on('hide', function() { self.navigate('', {trigger: true}); });
         }
     });
     var app = new AppRouter();
