@@ -12,7 +12,10 @@ $(function(){
             var airJST = air.clone().utc().lang('ja').add('hours', +9);
             var now = moment();
             var self = this;
-            if (now.isBefore(air)) {
+            if (this.get("status") == 'complete') {
+                var eta = blame = s_air = s_tl = s_ed = s_tm = s_ts = '';
+            }
+            else if (now.isBefore(air)) {
                 var s_tl = s_ed = s_tm = s_ts = 'muted';
                 var s_air = 'info';
                 var blame = "Pre-Broadcast (" + this.get("channel") + ")";
