@@ -21,12 +21,10 @@ $(function(){
                 var s_tl = s_ed = s_tm = s_ts = 'text-error';
                 progress = this.get("progress");
                 var eta = "Aired 'n Subbing"
-                switch(true) {
-                    case progress.translated: s_tl = 'text-success';
-                    case progress.edited: s_ed = 'text-success';
-                    case progress.timed: s_tm = 'text-success';
-                    case progress.typeset: s_ts = 'text-success';
-                }
+                if (progress.translated) { s_tl = 'text-success'; }
+                if (progress.edited) { s_ed = 'text-success'; }
+                if (progress.timed) { s_tm = 'text-success'; }
+                if (progress.typeset) { s_ts = 'text-success'; }
                 var st = this.get('staff');
                 switch(false) {
                     case progress.encoded: blame = 'Encoding'; break;
