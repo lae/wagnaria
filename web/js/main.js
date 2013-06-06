@@ -110,13 +110,15 @@ $(function(){
             "shows/:id": "muffin"
         },
         muffinbox: function() {
-            this.showList = new Shows();
-            this.showList.fetch({async: false});
-            this.showListView = new ShowListView({model: this.showList});
-            $('#muffinbox').html(this.showListView.render().el);
+            if (this.showList == null) {
+                this.showList = new Shows();
+                this.showList.fetch({async: false});
+                this.showListView = new ShowListView({model: this.showList});
+                $('#muffinbox').html(this.showListView.render().el);
+            }
         },
         muffin: function(id) {
-            this.muffinbox();
+            if (this.showList == null) { this.muffinbox(); }
             this.show = this.showList.get(id);
             this.showDetails = new ShowDetailView({model: this.show});
             $('#muffin').html(this.showDetails.render().el);
