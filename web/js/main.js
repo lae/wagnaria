@@ -146,6 +146,7 @@ $(function(){
                 this.show.fetch({async: false});
                 switch(this.show.get('status')) {
                     case 'complete': this.completed(); break;
+                    case 'incomplete': case 'unaired': this.incomplete(); break;
                     default: this.airing(); break;
                 }
             }
