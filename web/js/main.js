@@ -128,6 +128,7 @@ $(function(){
         routes: {
             "": "airing",
             "shows/complete": "completed",
+            "shows/incomplete": "incomplete",
             "shows/:id": "muffin"
         },
         loadShows: function(showsToLoad) {
@@ -137,6 +138,7 @@ $(function(){
                 this.showList.fetch({async: false});
             }
             else if ($('#muffin').data('modal').isShown) { $('#muffin').modal('hide'); }
+            $('.nav li').removeClass('active');
         },
         muffin: function(id) {
             if (this.showList == null) {
@@ -153,27 +155,31 @@ $(function(){
             $('#muffin').modal('show');
             self = this;
             $('#muffin').on('hide', function() {
-                console.log(self.loadedShows);
                 switch(self.loadedShows) {
                     case 'shows/complete': loc = 'shows/complete'; break;
+                    case 'shows/incomplete': loc = 'shows/incomplete'; break;
                     default: loc = ''; break;
                 }
                 self.navigate(loc, {trigger: true}); });
         },
         airing: function() {
-            $('#nav_airing').addClass('active');
-            $('#nav_complete').removeClass('active');
             this.loadShows("shows/airing");
+            $('#nav_airing').addClass('active');
             this.showsView = new ShowsView({model: this.showList}, "airing");
             $('#muffinbox').html(this.showsView.render().el);
         },
         completed: function() {
-            $('#nav_complete').addClass('active');
-            $('#nav_airing').removeClass('active');
             this.loadShows("shows/complete");
+            $('#nav_complete').addClass('active');
             this.showsView = new ShowsView({model: this.showList}, "complete");
             $('#muffinbox').html(this.showsView.render().el);
-        }
+        },
+        incomplete: function() {
+            this.loadShows("shows/incomplete");
+            $('#nav_incomplete').addClass('active');
+            this.showsView = new ShowsView({model: this.showList}, "airing");
+            $('#muffinbox').html(this.showsView.render().el);
+        },
     });
     var app = new AppRouter();
     Backbone.history.start();
