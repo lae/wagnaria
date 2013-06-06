@@ -116,6 +116,7 @@ $(function(){
                 this.showListView = new ShowListView({model: this.showList});
                 $('#muffinbox').html(this.showListView.render().el);
             }
+            else if ($('#muffin').data('modal').isShown) { $('#muffin').modal('hide'); }
         },
         muffin: function(id) {
             if (this.showList == null) { this.muffinbox(); }
