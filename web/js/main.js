@@ -17,7 +17,9 @@ $(function(){
             }
             else if (now.isBefore(air)) {
                 var s_tl = s_ed = s_tm = s_ts = 'muted';
-                var s_air = 'info';
+                var s_air = '';
+                if (now.isAfter(air.clone().subtract('hours', 6))) { s_air = 'info'; }
+                if (now.isAfter(air.clone().subtract('hours', 1))) { s_air = 'warning'; }
                 var blame = "Pre-Broadcast (" + this.get("channel") + ")";
                 var cdobj = countdown(air, function(ts) { eta = ts; $('#'+self.id+'_cd').html(eta.toHTML()); }, countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS, 3);
             }
