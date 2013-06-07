@@ -23,7 +23,7 @@ $(function(){
                 var blame = "Broadcast (" + this.get("channel") + ")";
                 if (now.isAfter(air.clone().subtract('minutes', 30))) { s_air = 'success'; }
                 else { blame = "Pre-" + blame; }
-                var cdobj = countdown(air, function(ts) { eta = ts; $('#'+self.id+'_cd').html(eta.toHTML()); }, countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS, 3);
+                var cdobj = countdown(air, function(ts) { eta = ts; $('#'+self.id+'_cd').html(eta.toHTML()); if(eta.value>0) { location.reload() } }, countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS, 3);
             }
             else {
                 var s_tl = s_ed = s_tm = s_ts = 'text-error';
@@ -67,11 +67,20 @@ $(function(){
             this.url = url;
         },
         comparator: function(a, b) {
-            a = moment(a.get('airtime').$date);
-            b = moment(b.get('airtime').$date);
-            return a.isAfter(b) ?  1
-                : a.isBefore(b) ? -1
-                :                  0;
+            if(this.url=="shows/complete"){
+                a = a.get('titles').english.toLowerCase();
+                b = b.get('titles').english.toLowerCase();
+                return a > b ? 1
+                    : a < b ? -1
+                    :          0;
+            }
+            else{
+                a = moment(a.get('airtime').$date);
+                b = moment(b.get('airtime').$date);
+                return a.isAfter(b) ?  1
+                    : a.isBefore(b) ? -1
+                    :                  0;
+            }
         }
     });
     var ShowsView = Backbone.View.extend({
