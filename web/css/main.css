@@ -1,0 +1,5 @@
+body { padding-top: 60px; }
+table { table-layout: fixed; }
+#muffinbox th:first-child { width: 25%; }
+#muffinbox th:nth-child(2) { width: 20%; }
+.dl-horizontal > dd:after { display: table; content: ""; clear: both; }
