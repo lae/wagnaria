@@ -41,7 +41,7 @@
   
   <!-- JavaScript -->
   <script src="lib/jquery-2.0.1.min.js"></script>
-  <script src="lib/jquery.hotkeys.js"></script>
+  <!--script src="lib/jquery.hotkeys.js"></script-->
   <script src="lib/moment.min.js"></script>
   <script src="lib/moment.ja.js"></script>
   <script src="lib/countdown.min.js"></script>
@@ -52,13 +52,13 @@
 
   <!-- Templates -->
   <script type="text/template" id="tpl-airing-item">
-    <td><%= titles.english %></td>
+    <td class="title"><%= titles.english %></td>
     <td><%= local_date %></td>
     <td id="<%= id %>_cd"><%= eta %></td>
     <td><%= blame %></td>
   </script>
   <script type="text/template" id="tpl-complete-item">
-    <td><%= titles.english %></td>
+    <td class="title"><%= titles.english %></td>
     <td><%= local_date %></td>
     <td><%= episodes.total %></td>
     <td><%= staff.translator.name %></td>
