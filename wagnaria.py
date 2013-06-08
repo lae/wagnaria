@@ -194,9 +194,9 @@ class ShowsCollection(RESTfulCollection):
         """ Return a specific list of shows with pre-defined filters. """
         query = {
             'complete': {"status": "complete"},
-            'incomplete': 
-                {"status": {"$in": ["unaired", "airing", "incomplete"]}},
+            'incomplete': {"status": "incomplete"},
             'airing': { "status": "airing" },
+            'unaired': { "status": "unaired" },
             'aired': {"status": "airing", "progress.encoded": False,
                 "airtime": {"$lt": dt.utcnow()}},
             'current_episodes': {"status": "airing",

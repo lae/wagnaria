@@ -153,6 +153,7 @@ $(function(){
     var AppRouter = Backbone.Router.extend({
         routes: {
             "": "airing",
+            "shows/unaired": "future",
             "shows/complete": "completed",
             "shows/incomplete": "incomplete",
             "shows/:id": "muffin"
@@ -207,6 +208,12 @@ $(function(){
             this.showsView = new ShowsView({model: this.showList}, "airing");
             $('#muffinbox').html(this.showsView.render().el);
         },
+        future: function() {
+            this.loadShows("shows/unaired");
+            $('#nav_future').addClass('active');
+            this.showsView = new ShowsView({model: this.showList}, "airing");
+            $('#muffinbox').html(this.showsView.render().el);
+        }
     });
     var app = new AppRouter();
     Backbone.history.start();
