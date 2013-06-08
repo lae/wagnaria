@@ -172,6 +172,7 @@ $(function(){
                 this.show = new Show({id: id});
                 this.show.fetch({async: false});
                 switch(this.show.get('status')) {
+                    case 'unaired': this.future(); break;
                     case 'complete': this.completed(); break;
                     case 'incomplete': case 'unaired': this.incomplete(); break;
                     default: this.airing(); break;
@@ -184,9 +185,8 @@ $(function(){
             self = this;
             $('#muffin').on('hide', function() {
                 switch(self.loadedShows) {
-                    case 'shows/complete': loc = 'shows/complete'; break;
-                    case 'shows/incomplete': loc = 'shows/incomplete'; break;
-                    default: loc = ''; break;
+                    case 'shows/airing': loc = ''; break;
+                    default: loc = self.loadedShows; break;
                 }
                 self.navigate(loc, {trigger: true}); });
         },
