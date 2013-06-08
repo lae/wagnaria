@@ -34,8 +34,10 @@ class Wagnaria(object):
         # Overwrite settings if a config file exists.
         try:
             cfg = open('config.yaml')
-        except (FileNotFoundError, PermissionError) as e:
-            print(e + "\nContinuing with default configuration.")
+        except IOError as e:
+            print("I/O Error %s, %s (%s)" % (e.errno, e.strerror, e.filename),
+                "\nContinuing with default configuration.")
+            cfg = ''
         if cfg:
             try:
                 self.config.update(yaml.load(cfg))
