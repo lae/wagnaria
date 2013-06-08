@@ -3,6 +3,7 @@
 import yaml
 from datetime import datetime as dt
 import json
+import re
 
 from pymongo import MongoClient
 from bson.json_util import dumps
@@ -90,6 +91,30 @@ class Wagnaria(object):
         response.content_type = 'application/json'
         return dumps({'status_code': e._status_code, 'message': e.body})
 
+    def search(self, query=''):
+        """ Return shows and staff whose names match query. """
+        response.content_type = 'application/json'
+        rq = re.compile(query, re.IGNORECASE)
+        documents = [{
+                '_id': d['_id'],
+                'type': 'show',
+                'label': d['titles']['english'],
+                'minor': d['titles']['japanese']
+            } for d in self.shows.collection.find({'$or': [
+                {'titles.english': rq},
+                {'titles.japanese': rq},
+                {'titles.short': rq}
+            ]}, {'titles.english': 1, 'titles.japanese': 1})]
+        documents = documents + [{
+                '_id': d['_id'],
+                'type': 'staff',
+                'label': d['name']
+            } for d in self.staff.collection.find({'name': rq})]
+        if documents:
+            return dumps(documents)
+        else:
+            raise HTTPError(404, 'No shows/staff matched. Query: %s' % query)
+
     def install_routes(self, b):
         """ Define routes to their select functions for a Bottle app. """
         b.route('/', 'ANY', self.index)
@@ -100,11 +125,15 @@ class Wagnaria(object):
         b.route('/shows/<oid:oid>/<key:re:[a-z_.]+>', 'GET', self.shows.by_id)
         b.route('/shows/<group:re:[a-z_]+>', 'GET', self.shows.by_group)
         b.route('/shows/<oid:oid>', 'DELETE', self.shows.destroy)
+
         b.route(['/staff', '/staff/'], 'GET', self.staff.all_docs)
         b.route('/staff/ref', 'GET', self.staff.all_docs_short)
         b.route('/staff/<oid:oid>', 'GET', self.staff.by_id)
         b.route('/staff/<oid:oid>/shows', 'GET', self.staff.show_history)
         b.route('/staff/<oid:oid>', 'DELETE', self.staff.destroy)
+
+        b.route('/search/', 'GET', self.search)
+        b.route('/search/<query>', 'GET', self.search)
 
 class RESTfulCollection(object):
     """ Defines common web functions for use with MongoDB collections """
