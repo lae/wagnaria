@@ -61,6 +61,9 @@ $(function(){
             });
 }
     });
+    var Member = Backbone.Model.extend({
+        urlRoot: '/staff'
+    });
     var Shows = Backbone.Collection.extend({
         model: Show,
         initialize: function(url) {
@@ -82,6 +85,10 @@ $(function(){
                     :                  0;
             }
         }
+    });
+    var Staff = Backbone.Collection.extend({
+        model: Member,
+        url: '/staff'
     });
     var ShowsView = Backbone.View.extend({
         tagName: "table",
@@ -150,13 +157,51 @@ $(function(){
             return this;
         }
     });
+    var StaffView = Backbone.View.extend({
+        initialize: function(obj, type) {
+            this.model.bind("reset", this.render, this);
+            var self = this;
+            this.model.bind("add", function(member) { self.itemview(member, self) });
+        },
+        render: function(eventName) {
+            var self = this;
+            _.each(this.model.models, function(member) { self.itemview(member, self) }, this);
+            return this;
+        },
+        itemview: function(member, self) {
+            item = new MemberItemView({model: member});
+            $(self.el).append(item.render().el);
+        },
+    });
+    var MemberItemView = Backbone.View.extend({
+        template: _.template($("#tpl-member-item").html()),
+        initialize: function(attr) {
+            this.model.bind("change", this.render, this);
+            this.model.bind("destroy", this.close, this);
+        },
+        render: function(eventName) {
+            this.prerender(eventName);
+            return this;
+        },
+        prerender: function(eventName) {
+            this.json = this.model.toJSON();
+            $(this.el).html(this.template(this.json));
+            //var sid = this.model.id;
+            //$(this.el).click(function() { app.navigate('staff/'+sid, true); });
+        },
+        close: function() {
+            $(this.el).unbind();
+            $(this.el).remove();
+        }
+    });
     var AppRouter = Backbone.Router.extend({
         routes: {
             "": "airing",
             "shows/unaired": "future",
             "shows/complete": "completed",
             "shows/incomplete": "incomplete",
-            "shows/:id": "muffin"
+            "shows/:id": "muffin",
+            "staff": "stafflist"
         },
         loadShows: function(showsToLoad) {
             if (this.loadedShows != showsToLoad) {
@@ -213,7 +258,18 @@ $(function(){
             $('#nav_future').addClass('active');
             this.showsView = new ShowsView({model: this.showList}, "airing");
             $('#muffinbox').html(this.showsView.render().el);
-        }
+        },
+        stafflist: function() {
+            if (this.loadedShows) {
+                this.loadedShows = "";
+            }
+            this.staffList = new Staff();
+            this.staffList.fetch({async: false});
+            $('.nav li').removeClass('active');
+            $('#nav_staff').addClass('active');
+            this.staffView = new StaffView({model: this.staffList});
+            $('#muffinbox').html(this.staffView.render().el);
+        },
     });
     var app = new AppRouter();
     Backbone.history.start();
