@@ -1,6 +1,32 @@
-body { padding-top: 60px; }
+body { font-family: sans-serif; }
+a { color: #9f2f3f; text-decoration: none; }
+
+
 table { table-layout: fixed; }
 #muffinbox th:first-child { width: 25%; }
 #muffinbox .title { white-space: nowrap; overflow: hidden; text-overflow:ellipsis; }
 #muffinbox th:nth-child(2) { width: 20%; }
 .dl-horizontal > dd:after { display: table; content: ""; clear: both; }
+#basket { padding-left: 192px; left: 0; }
+#食べ物 { width: 100%; }
+#parasol { margin-left: -192px; width: 192px; position: fixed; top: 0px; left: 192px; bottom: 0px; z-index: 317; background: #1f1f1f; overflow-y: auto; -webkit-overflow-scroll: touch; }
+#parasol a { color: #999; border: none; white-space: normal; padding: 0.6em 0 0.6em 0.6em; }
+#parasol .pure-menu-open, #parasol .pure-menu ul { background: transparent; border: none; }
+#parasol .pure-menu ul, #parasol .pure-menu .menu-item-divided { border-top: 1px solid #333; padding-top: 0.3em; margin-top: 0.3em; }
+#parasol .pure-menu li a:hover, #parasol .pure-menu li a:focus { background: #333; }
+.pure-menu-toggle { display: none; top: 0; left: 192px; background: rgba(0,0,0,0.3); color: #fff; font-size: 110%; padding: 0.6em 1.1em 0.6em 0.8em; margin-top: 0.5em; line-height: 1.5em; border-radius: 0 6px 6px 0;}
+.pure-menu-toggle:hover, .pure-menu-toggle:focus { background: #1f1f1f; }
+#parasol .pure-menu-heading { font-size: 110%; color: #fff; }
+#parasol .pure-menu-heading:hover, #parasol .pure-menu-heading:focus { color: #999; }
+#parasol .pure-menu-selected { background: #df3f4f; }
+#parasol .pure-menu-selected a { color: #fff; }
+#parasol li.pure-menu-selected a:hover, #parasol li.pure-menu-selected a:focus { background: none; }
+#basket, #parasol, .pure-menu-toggle { -webkit-transition: all 0.3s ease-out; -moz-transition: all 0.3s ease-out; -ms-transition: all 0.3s ease-out; -o-transition: all 0.3s ease-out; transition: all 0.3s ease-out; }
+@media (max-width: 960px) {
+    #basket { position: fixed; padding-left: 0; }
+    #basket.active { position: fixed; left: 192px; }
+    #basket.active #parasol { left: 192px; width: 192px; }
+    #parasol { left: 0; }
+    .pure-menu-toggle { position: fixed; left: 0; display: block;  }
+    #basket.active .pure-menu-toggle { left: 192px; background: #1f1f1f; }
+}

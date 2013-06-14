@@ -3,50 +3,38 @@
 <head>
   <title>Wagnaria!</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Bootstrap -->
-  <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <link href="css/pure-min.css" rel="stylesheet" media="screen">
+  <link href="css/glyphs.min.css" rel="stylesheet" media="screen">
   <link href="css/main.css" rel="stylesheet" media="screen">
-  <link href="css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
   <meta charset="utf-8" />
 </head>
 <body>
 
-  <div class="navbar navbar-inverse navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <span class="brand">Wagnaria</span>
-        <div class="nav-collapse collapse">
-          <ul class="nav">
-            <li id="nav_airing"><a href="#">Airing</a></li>
-            <li id="nav_future"><a href="#shows/unaired">Future</a></li>
-            <li id="nav_incomplete"><a href="#shows/incomplete">Incomplete</a></li>
-            <li id="nav_complete"><a href="#shows/complete">Completed</a></li>
-            <li id="nav_staff"><a href="#staff">Staff</a></li>
-          </ul>
-        </div><!--/.nav-collapse -->
-      </div>
+<div id="basket" class="pure-g-r">
+  <span class="pure-menu-toggle" id="toggle">»</span>
+  <div id="parasol" class="pure-u">
+    <div class="pure-menu pure-menu-open">
+      <a class="pure-menu-heading" href="/">Wagnaria</a>
+      <ul>
+        <li id="nav_airing"><a href="#">Airing</a></li>
+        <li id="nav_future"><a href="#shows/unaired">Future</a></li>
+        <li id="nav_incomplete"><a href="#shows/incomplete">Incomplete</a></li>
+        <li id="nav_complete"><a href="#shows/complete">Completed</a></li>
+        <li id="nav_staff" class="menu-item-divided"><a href="#staff">Staff</a></li>
+      </ul>
     </div>
   </div>
-
-  <div class="container">
+  <div id="食べ物" class="pure-u">
     <div id="muffinbox"></div>
     <p class="text-right text-info">Times are local.</p>
   </div>
-  <div id="muffin" class="modal hide fade" data-keyboard="true"></div>
-  
+</div>  
   <!-- JavaScript -->
   <script src="lib/jquery-2.0.1.min.js"></script>
   <!--script src="lib/jquery.hotkeys.js"></script-->
   <script src="lib/moment.min.js"></script>
   <script src="lib/moment.ja.js"></script>
   <script src="lib/countdown.min.js"></script>
-  <script src="lib/bootstrap.min.js"></script>
   <script src="lib/underscore-min.js"></script>
   <script src="lib/backbone-min.js"></script>
   <script src="js/main.js"></script>

@@ -92,7 +92,7 @@ $(function(){
     });
     var ShowsView = Backbone.View.extend({
         tagName: "table",
-        className: "table table-bordered table-hover",
+        className: "table table-bordered table-hover pure-table",
         initialize: function(obj, type) {
             this.model.bind("reset", this.render, this);
             this.type = type;
@@ -210,7 +210,7 @@ $(function(){
                 this.showList.fetch({async: false});
             }
             else if ($('#muffin').data('modal').isShown) { $('#muffin').modal('hide'); }
-            $('.nav li').removeClass('active');
+            $('.pure-menu li').removeClass('pure-menu-selected');
         },
         muffin: function(id) {
             if (this.showList == null) {
@@ -237,25 +237,25 @@ $(function(){
         },
         airing: function() {
             this.loadShows("shows/airing");
-            $('#nav_airing').addClass('active');
+            $('#nav_airing').addClass('pure-menu-selected');
             this.showsView = new ShowsView({model: this.showList}, "airing");
             $('#muffinbox').html(this.showsView.render().el);
         },
         completed: function() {
             this.loadShows("shows/complete");
-            $('#nav_complete').addClass('active');
+            $('#nav_complete').addClass('pure-menu-selected');
             this.showsView = new ShowsView({model: this.showList}, "complete");
             $('#muffinbox').html(this.showsView.render().el);
         },
         incomplete: function() {
             this.loadShows("shows/incomplete");
-            $('#nav_incomplete').addClass('active');
+            $('#nav_incomplete').addClass('pure-menu-selected');
             this.showsView = new ShowsView({model: this.showList}, "airing");
             $('#muffinbox').html(this.showsView.render().el);
         },
         future: function() {
             this.loadShows("shows/unaired");
-            $('#nav_future').addClass('active');
+            $('#nav_future').addClass('pure-menu-selected');
             this.showsView = new ShowsView({model: this.showList}, "airing");
             $('#muffinbox').html(this.showsView.render().el);
         },
@@ -265,12 +265,17 @@ $(function(){
             }
             this.staffList = new Staff();
             this.staffList.fetch({async: false});
-            $('.nav li').removeClass('active');
-            $('#nav_staff').addClass('active');
+            $('.pure-menu li').removeClass('pure-menu-selected');
+            $('#nav_staff').addClass('pure-menu-selected');
             this.staffView = new StaffView({model: this.staffList});
             $('#muffinbox').html(this.staffView.render().el);
         },
     });
     var app = new AppRouter();
     Backbone.history.start();
+});
+$('#toggle').click(function() {
+    $('#basket').toggleClass('active');
+    $('#parasol').toggleClass('active');
+    $(this).text($(this).text() == '»'?'«':'»');
 });
