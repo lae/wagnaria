@@ -211,31 +211,17 @@ $(function(){
                 this.showList = new Shows(this.loadedShows);
                 this.showList.fetch({async: false});
             }
-            else if ($('#muffin').data('modal').isShown) { $('#muffin').modal('hide'); }
             $('.pure-menu li').removeClass('pure-menu-selected');
+            $('#tablefooter').show();
         },
         muffin: function(id) {
-            if (this.showList == null) {
-                this.show = new Show({id: id});
-                this.show.fetch({async: false});
-                switch(this.show.get('status')) {
-                    case 'unaired': this.future(); break;
-                    case 'complete': this.completed(); break;
-                    case 'incomplete': case 'unaired': this.incomplete(); break;
-                    default: this.airing(); break;
-                }
-            }
-            else { this.show = this.showList.get(id); }
+            this.show = new Show({id: id});
+            this.show.fetch({async: false});
             this.showDetails = new ShowDetailView({model: this.show});
-            $('#muffin').html(this.showDetails.render().el);
-            $('#muffin').modal('show');
-            self = this;
-            $('#muffin').on('hide', function() {
-                switch(self.loadedShows) {
-                    case 'shows/airing': loc = ''; break;
-                    default: loc = self.loadedShows; break;
-                }
-                self.navigate(loc, {trigger: true}); });
+            $('#muffinbox').html(this.showDetails.render().el);
+            $('#tablefooter').hide();
+            var self = this;
+            $('.back-button').click(function() { if (document.referer) { history.back(); } else { self.navigate('', true); } });
         },
         airing: function() {
             this.loadShows("shows/airing");
