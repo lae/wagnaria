@@ -18,10 +18,12 @@ $(function(){
             else if (now.isBefore(air)) {
                 var s_tl = s_ed = s_tm = s_ts = 'muted';
                 var s_air = '';
-                if (now.isAfter(air.clone().subtract('hours', 6.5))) { s_air = 'info'; }
-                if (now.isAfter(air.clone().subtract('hours', 1.5))) { s_air = 'warning'; }
+                if (now.isAfter(air.clone().subtract('hours', 12.5))) { s_air = 'airing_12'; }
+                if (now.isAfter(air.clone().subtract('hours', 6.5))) { s_air = 'airing_6'; }
+                if (now.isAfter(air.clone().subtract('hours', 3.5))) { s_air = 'airing_3'; }
+                if (now.isAfter(air.clone().subtract('hours', 1.5))) { s_air = 'airing_1'; }
                 var blame = "Broadcast (" + this.get("channel") + ")";
-                if (now.isAfter(air.clone().subtract('minutes', 30))) { s_air = 'success'; }
+                if (now.isAfter(air.clone().subtract('minutes', 30))) { s_air = 'airing_now'; }
                 else { blame = "Pre-" + blame; }
                 var cdobj = countdown(air, function(ts) { eta = ts; $('#'+self.id+'_cd').html(eta.toHTML()); if(eta.value>0) { location.reload() } }, countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS, 3);
             }
@@ -92,7 +94,7 @@ $(function(){
     });
     var ShowsView = Backbone.View.extend({
         tagName: "table",
-        className: "table table-bordered table-hover pure-table",
+        className: "pure-table pure-table-horizontal",
         initialize: function(obj, type) {
             this.model.bind("reset", this.render, this);
             this.type = type;
