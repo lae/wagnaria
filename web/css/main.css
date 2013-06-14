@@ -7,8 +7,10 @@ table { table-layout: fixed; }
 #muffinbox .title { white-space: nowrap; overflow: hidden; text-overflow:ellipsis; }
 #muffinbox th:nth-child(2) { width: 20%; }
 .dl-horizontal > dd:after { display: table; content: ""; clear: both; }
+
 #basket { padding-left: 192px; left: 0; }
 #食べ物 { width: 100%; }
+
 #parasol { margin-left: -192px; width: 192px; position: fixed; top: 0px; left: 192px; bottom: 0px; z-index: 317; background: #1f1f1f; overflow-y: auto; -webkit-overflow-scroll: touch; }
 #parasol a { color: #999; border: none; white-space: normal; padding: 0.6em 0 0.6em 0.6em; }
 #parasol .pure-menu-open, #parasol .pure-menu ul { background: transparent; border: none; }
@@ -21,6 +23,9 @@ table { table-layout: fixed; }
 #parasol .pure-menu-selected { background: #df3f4f; }
 #parasol .pure-menu-selected a { color: #fff; }
 #parasol li.pure-menu-selected a:hover, #parasol li.pure-menu-selected a:focus { background: none; }
+
+thead { line-height: 1.5em; padding: 0.6em 0; background: #000; margin-top: 0.5em; }
+
 #basket, #parasol, .pure-menu-toggle { -webkit-transition: all 0.3s ease-out; -moz-transition: all 0.3s ease-out; -ms-transition: all 0.3s ease-out; -o-transition: all 0.3s ease-out; transition: all 0.3s ease-out; }
 @media (max-width: 960px) {
     #basket { position: fixed; padding-left: 0; }
