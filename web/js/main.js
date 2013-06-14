@@ -18,18 +18,19 @@ $(function(){
             else if (now.isBefore(air)) {
                 var s_tl = s_ed = s_tm = s_ts = 'muted';
                 var s_air = '';
-                if (now.isAfter(air.clone().subtract('hours', 12.5))) { s_air = 'airing_12'; }
-                if (now.isAfter(air.clone().subtract('hours', 6.5))) { s_air = 'airing_6'; }
-                if (now.isAfter(air.clone().subtract('hours', 3.5))) { s_air = 'airing_3'; }
-                if (now.isAfter(air.clone().subtract('hours', 1.5))) { s_air = 'airing_1'; }
+                self.update_eta = -45000000;
+                if (now.isAfter(air.clone().subtract('hours', 12.5))) { s_air = 'airing_12'; self.update_eta = -23400000; }
+                if (now.isAfter(air.clone().subtract('hours', 6.5))) { s_air = 'airing_6'; self.update_eta = -12600000; }
+                if (now.isAfter(air.clone().subtract('hours', 3.5))) { s_air = 'airing_3'; self.update_eta = -5400000; }
+                if (now.isAfter(air.clone().subtract('hours', 1.5))) { s_air = 'airing_1'; self.update_eta = -1800000; }
                 var blame = "Broadcast (" + this.get("channel") + ")";
-                if (now.isAfter(air.clone().subtract('minutes', 30))) { s_air = 'airing_now'; }
+                if (now.isAfter(air.clone().subtract('minutes', 30))) { s_air = 'airing_now'; self.update_eta = 0; }
                 else { blame = "Pre-" + blame; }
-                var cdobj = countdown(air, function(ts) { eta = ts; $('#'+self.id+'_cd').html(eta.toHTML()); if(eta.value>0) { location.reload() } }, countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS, 3);
+                var cdobj = countdown(air, function(ts) { eta = ts; $('#'+self.id+'_cd').html(eta.toHTML()); if(eta.value>self.update_eta) { location.reload() } }, countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS, 3);
             }
             else {
                 var s_tl = s_ed = s_tm = s_ts = 'text-error';
-                var s_air = 'error';
+                var s_air = 'subbing';
                 progress = this.get("progress");
                 var eta = "Aired 'n Subbing"
                 if (progress.translated) { s_tl = 'text-success'; }

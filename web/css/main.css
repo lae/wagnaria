@@ -47,7 +47,9 @@ dd { margin-left: 10px; }
 .airing_3 { background: #cf6f7f; }
 .airing_6 { background: #afafdf; }
 .airing_12 { background: #afcfef; }
-.airing_now td, .airing_1 td, .airing_3 td, .airing_6 td, .airing_12 td { border: none; }
+.subbing { background: #dfdfff; }
+.airing_now td, .airing_1 td, .airing_3 td, .airing_6 td, .airing_12 td, .subbing td { border: none; }
+
 
 #basket, #parasol, .pure-menu-toggle { -webkit-transition: all 0.3s ease-out; -moz-transition: all 0.3s ease-out; -ms-transition: all 0.3s ease-out; -o-transition: all 0.3s ease-out; transition: all 0.3s ease-out; }
 @media (max-width: 960px) {
