@@ -28,11 +28,14 @@ table { table-layout: fixed; width: 100%; }
 .pure-table { border-width: 0 0 1px; }
 #muffinbox td { font-size: 0.9em; padding-top: 0.7em; padding-bottom: 0.7em; }
 
-.airing_now { background: #afef9f; } /*rgb(242, 222, 222);  : rgb(252, 248, 227);  : rgb(217, 237, 247); */
+#stalk { background: #f7f7f7; color: #2f578f; font-size: 0.9em; padding: 2em; text-align: right; }
+
+.airing_now { background: #afef9f; }
 .airing_1 { background: #ff3f4f; }
 .airing_3 { background: #cf6f7f; }
 .airing_6 { background: #afafdf; }
 .airing_12 { background: #afcfef; }
+.airing_now td, .airing_1 td, .airing_3 td, .airing_6 td, .airing_12 td { border: none; }
 
 #basket, #parasol, .pure-menu-toggle { -webkit-transition: all 0.3s ease-out; -moz-transition: all 0.3s ease-out; -ms-transition: all 0.3s ease-out; -o-transition: all 0.3s ease-out; transition: all 0.3s ease-out; }
 @media (max-width: 960px) {
