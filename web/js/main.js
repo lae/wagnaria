@@ -16,7 +16,7 @@ $(function(){
                 var eta = blame = s_air = s_tl = s_ed = s_tm = s_ts = '';
             }
             else if (now.isBefore(air)) {
-                var s_tl = s_ed = s_tm = s_ts = 'muted';
+                var s_tl = s_ed = s_tm = s_ts = 'staff-status-disabled';
                 var s_air = '';
                 self.update_eta = -45000000;
                 if (now.isAfter(air.clone().subtract('hours', 12.5))) { s_air = 'airing_12'; self.update_eta = -23400000; }
@@ -29,14 +29,14 @@ $(function(){
                 var cdobj = countdown(air, function(ts) { eta = ts; $('#'+self.id+'_cd').html(eta.toHTML()); if(eta.value>self.update_eta) { location.reload() } }, countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS, 3);
             }
             else {
-                var s_tl = s_ed = s_tm = s_ts = 'text-error';
+                var s_tl = s_ed = s_tm = s_ts = 'staff-status-false';
                 var s_air = 'subbing';
                 progress = this.get("progress");
                 var eta = "Aired 'n Subbing"
-                if (progress.translated) { s_tl = 'text-success'; }
-                if (progress.edited) { s_ed = 'text-success'; }
-                if (progress.timed) { s_tm = 'text-success'; }
-                if (progress.typeset) { s_ts = 'text-success'; }
+                if (progress.translated) { s_tl = 'staff-status-true'; }
+                if (progress.edited) { s_ed = 'staff-status-true'; }
+                if (progress.timed) { s_tm = 'staff-status-true'; }
+                if (progress.typeset) { s_ts = 'staff-status-true'; }
                 var st = this.get('staff');
                 switch(false) {
                     case progress.encoded: blame = 'Encoding'; break;
