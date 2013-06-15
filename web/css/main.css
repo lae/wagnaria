@@ -4,7 +4,6 @@ a { color: #9f2f3f; text-decoration: none; }
 
 table { table-layout: fixed; width: 100%; }
 #muffinbox .title { white-space: nowrap; overflow: hidden; text-overflow:ellipsis; }
-#muffinbox th:nth-child(2) { width: 20%; }
 .dl-horizontal > dd:after { display: table; content: ""; clear: both; }
 dl { margin-bottom: 20px; }
 dt, dd { line-height: 20px; }
