@@ -44,7 +44,7 @@ $(function(){
                     case progress.edited: blame = 'Editing ('+st.editor.name+')'; break;
                     case progress.timed: blame = 'Timing ('+st.timer.name+')'; break;
                     case progress.typeset: blame = 'Typesetting ('+st.typesetter.name+')'; break;
-                    case progress.qc: blame = 'Quality Control'; s_air = 'success'; break;
+                    case progress.qc: blame = 'Quality Control'; s_air = 'qc'; break;
                 }
             }
             return _.extend(this.toJSON(), {
