@@ -69,6 +69,7 @@ dd { margin-left: 10px; }
 @media (max-width: 640px) {
     .pure-table { border-collapse: separate; }
     .pure-table td, .pure-table th { display: block; }
+    .airing_now td, .airing_1 td, .airing_3 td, .airing_6 td, .airing_12 td, .subbing td, .qc td { border-bottom: 1px solid #8f8f8f; }
     .pure-table td:first-child { border-top: solid 2em #fff; }
     .pure-table td:last-child { border-bottom: solid 2px #cbcbcb; }
     .pure-table-horizontal tbody > tr:last-child td { border-bottom-width: 1px; }
