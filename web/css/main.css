@@ -65,3 +65,11 @@ dd { margin-left: 10px; }
     .pure-menu-toggle { position: fixed; left: 0; display: block;  }
     #basket.active .pure-menu-toggle { left: 192px; background: #1f1f1f; }
 }
+
+@media (max-width: 640px) {
+    .pure-table { border-collapse: separate; }
+    .pure-table td, .pure-table th { display: block; }
+    .pure-table td:first-child { border-top: solid 2em #fff; }
+    .pure-table td:last-child { border-bottom: solid 2px #cbcbcb; }
+    .pure-table-horizontal tbody > tr:last-child td { border-bottom-width: 1px; }
+}
