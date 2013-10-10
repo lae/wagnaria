@@ -58,20 +58,13 @@ class Wagnaria(object):
         # Load the database if it exists, create it if it doesn't.
         self.db = self.client[self.config['mongo']['name']]
 
-        # Initialize class objects for shows and staff.
-        self.staff = StaffCollection(self.db.staff, self.db.shows)
-        self.shows = ShowsCollection(self.db.shows, self.db.staff)
-
         # Assign this object to the first app in Bottle's AppStack().
-        self.app = bottle.default_app()
-        # ObjectId Filter
-        self.app.router.add_filter('oid', lambda x: (r'[0-9a-f]{24}', ObjectId, str))
+        self.app = bottle.Bottle()
         # Setup the routes to be handled by this object.
         self.install_routes(self.app)
-        # Assign most common "error" routes to a custom error handler.
-        errors = {sc: self.error_page for sc in range(400, 415)}
-        errors[500] = self.error_page
-        self.app.error_handler = errors
+
+        self.api = WagnariaAPI(self.db)
+        self.app.mount('/api/1/', self.api.app)
 
         if __name__ == '__main__':
             # Run app using bottle_run settings if executed standalone.
@@ -81,21 +74,45 @@ class Wagnaria(object):
                     sb.append("%s='%s'" % (k, v))
                 else:
                     sb.append("%s=%s" % (k, v))
-            eval("bottle.default_app().run({0})".format(', '.join(sb)))
+            print("Started:", str(dt.now()))
+            eval("self.app.run({0})".format(', '.join(sb)))
 
     def index(self):
         """ Return an index page. """
         return("<pre>Strawberries and cream, \nbiscuits and tea, \nwon't you "
                "join me \nin the oak tree?</pre>")
 
+    def install_routes(self, b):
+        """ Define routes to their select functions for a Bottle app. """
+        b.route('/', 'ANY', self.index)
+
+class WagnariaAPI(object):
+    """ API with JSON only responses """
+    def __init__(self, mongodb):
+        # Initialize class objects for shows and staff.
+        self.db = mongodb
+        self.staff = StaffCollection(self.db.staff, self.db.shows)
+        self.shows = ShowsCollection(self.db.shows, self.db.staff)
+
+        self.app = bottle.Bottle()
+        # ObjectId Filter
+        self.app.router.add_filter('oid', lambda x: (r'[0-9a-f]{24}', ObjectId, str))
+        # Setup the routes to be handled by this object.
+        self.install_routes(self.app)
+        # Assign most common "error" routes to a custom error handler.
+        errors = {sc: self.error_page for sc in range(400, 415)}
+        errors[500] = self.error_page
+        self.app.error_handler = errors
+
     def error_page(self, e):
         """ Return JSON documents when the application returns an HTTPError. """
         response.content_type = 'application/json'
         return dumps({'status_code': e._status_code, 'message': e.body})
 
-    def search(self, query=''):
+    def search(self):
         """ Return shows and staff whose names match query. """
         response.content_type = 'application/json'
+        query = request.query.q
         rq = re.compile(query, re.IGNORECASE)
         documents = [{
                 '_id': d['_id'],
@@ -119,23 +136,21 @@ class Wagnaria(object):
 
     def install_routes(self, b):
         """ Define routes to their select functions for a Bottle app. """
-        b.route('/', 'ANY', self.index)
-        b.route(['/shows', '/shows/'], 'GET', self.shows.all_docs)
-        b.route('/shows/ref', 'GET', self.shows.all_docs_short)
-        b.route('/shows/<oid:oid>', 'GET', self.shows.by_id)
-        b.route('/shows/<oid:oid>/blame', 'GET', self.shows.impute)
-        b.route('/shows/<oid:oid>/<key:re:[a-z_.]+>', 'GET', self.shows.by_id)
-        b.route('/shows/<group:re:[a-z_]+>', 'GET', self.shows.by_group)
-        b.route('/shows/<oid:oid>', 'DELETE', self.shows.destroy)
+        b.route('/shows.json', 'GET', self.shows.all_docs)
+        b.route('/shows/ref.json', 'GET', self.shows.all_docs_short)
+        b.route('/shows/<oid:oid>.json', 'GET', self.shows.by_id)
+        b.route('/shows/<oid:oid>/blame.json', 'GET', self.shows.impute)
+        b.route('/shows/<oid:oid>/<key:re:[a-z_.]+>.json', 'GET', self.shows.by_id)
+        b.route('/shows/<group:re:[a-z_]+>.json', 'GET', self.shows.by_group)
+        b.route('/shows/<oid:oid>.json', 'DELETE', self.shows.destroy)
 
-        b.route(['/staff', '/staff/'], 'GET', self.staff.all_docs)
-        b.route('/staff/ref', 'GET', self.staff.all_docs_short)
-        b.route('/staff/<oid:oid>', 'GET', self.staff.by_id)
-        b.route('/staff/<oid:oid>/shows', 'GET', self.staff.show_history)
-        b.route('/staff/<oid:oid>', 'DELETE', self.staff.destroy)
+        b.route('/staff.json', 'GET', self.staff.all_docs)
+        b.route('/staff/ref.json', 'GET', self.staff.all_docs_short)
+        b.route('/staff/<oid:oid>.json', 'GET', self.staff.by_id)
+        b.route('/staff/<oid:oid>/shows.json', 'GET', self.staff.show_history)
+        b.route('/staff/<oid:oid>.json', 'DELETE', self.staff.destroy)
 
-        b.route('/search/', 'GET', self.search)
-        b.route('/search/<query>', 'GET', self.search)
+        b.route('/search.json', 'GET', self.search)
 
 class RESTfulCollection(object):
     """ Defines common web functions for use with MongoDB collections """
