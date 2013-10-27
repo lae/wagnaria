@@ -12,7 +12,10 @@ angular.module('Wagnaria', ['ui.router', 'ngResource'])
         }])
     .factory('Shows', ['$resource',
         function($resource) {
-            return $resource( '/api/1/shows/:showId.json', {showId: '@_id.$oid'} );
+            return $resource( '/api/1/shows/:showId.json', {showId: '@_id.$oid'}, {
+                'getAiring': { method: 'GET', url: '/api/1/shows/airing.json', isArray: true },
+                'getCompleted': { method: 'GET', url: '/api/1/shows/completed.json', isArray: true }
+            });
         }])
     .factory('staff', ['$resource',
         function($resource) {
@@ -20,29 +23,63 @@ angular.module('Wagnaria', ['ui.router', 'ngResource'])
         }]);
 
 angular.module('Wagnaria')
+    .controller('ShowsCtrl', ['$scope', '$state', 'Shows',
+        function($scope, $state, Shows) {
+            console.log('loading shows');
+            $scope.shows = Shows;
+            $scope.localise_date = function(date) {
+                return moment(date).format('llll');
+            };
+        }
+    ]);
+
+angular.module('Wagnaria')
     .config([
         '$stateProvider', '$urlRouterProvider',
         function($stateProvider, $urlRouterProvider) {
             $urlRouterProvider
-                .when('/', '/shows')
-                .otherwise('/shows');
+                .when('/', '/shows/airing')
+                .otherwise('/shows/airing');
             $stateProvider
                 .state('shows', {
                     url: '/shows',
-                    templateUrl: 'tpl/shows.html',
+                    abstract: true,
+                    template: '<table class="pure-table pure-table-horizontal" data-ui-view></table>',
+                })
+                .state('shows.completed', {
+                    url: '/completed',
+                    templateUrl: 'tpl/completed.html',
                     resolve: {
                         Shows: ['Shows',
-                            function(Shows){ console.log(Shows); return Shows.query().$promise; }
+                            function(Shows){ return Shows.getCompleted().$promise; }
                         ]
                     },
-                    controller: ['$scope', '$state', 'Shows',
-                        function($scope, $state, Shows) {
-                            console.log('loading shows');
-                            $scope.shows = Shows;
-                            $scope.localise_date = function(date) {
-                                return moment(date).format('llll');
-                            };
-                        }]
+                    controller: 'ShowsCtrl'
+                })
+                .state('shows.airing', {
+                    url: '/airing',
+                    templateUrl: 'tpl/airing.html',
+                    resolve: {
+                        Shows: ['Shows',
+                            function(Shows){ return Shows.getAiring().$promise; }
+                        ]
+                    },
+                    controller: 'ShowsCtrl'
                 });
         }
     ]);
+
+angular.module('Wagnaria')
+    .directive('memberHighlight', function() {
+        return {
+            restrict: 'A',
+            scope: { member: '=memberHighlight' },
+            template: '{{member.name}}',
+            link: function(scope, elm, attrs) {
+                //function updateMember() {
+                    //elm.text(attrs.memberHighlight.name);
+                    console.log(scope.member);
+                //}
+            }
+        }
+    });

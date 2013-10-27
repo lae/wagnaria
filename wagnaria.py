@@ -239,7 +239,7 @@ class ShowsCollection(RESTfulCollection):
     def by_group(self, group):
         """ Return a specific list of shows with pre-defined filters. """
         query = {
-            'complete': {"status": "complete"},
+            'completed': {"status": "complete"},
             'incomplete': {"status": "incomplete"},
             'airing': { "status": "airing" },
             'unaired': { "status": "unaired" },

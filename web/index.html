@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="Wagnaria">
+<html lang="en" data-ng-app="Wagnaria">
 <head>
   <title>Wagnaria!</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,7 +19,7 @@
         <li id="nav_airing"><a href="#/">Airing</a></li>
         <li id="nav_future"><a href="#shows/unaired">Future</a></li>
         <li id="nav_incomplete"><a href="#shows/incomplete">Incomplete</a></li>
-        <li id="nav_complete"><a href="#shows/complete">Completed</a></li>
+        <li id="nav_complete"><a href="#shows/completed">Completed</a></li>
         <li id="nav_staff" class="menu-item-divided"><a href="#staff">Staff</a></li>
       </ul>
     </div>
@@ -39,25 +39,32 @@
 
   <!-- Templates -->
   <script type="text/ng-template" id="tpl/airing.html">
-    <td class="title"><%= titles.english %></td>
-    <td><%= local_date %></td>
-    <td id="<%= id %>_cd"><%= eta %></td>
-    <td><%= blame %></td>
+    <thead><tr><th>Series</th><th>Airtime</th><th>Time 'til Air</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th></tr></thead>
+    <tbody>
+      <tr data-ng-repeat="show in shows">
+        <td class="title">{{ show.titles.english }}</td>
+        <td>{{ localise_date(show.airtime.$date) }}</td>
+        <td>{{ countdown(show.airtime.$date) }}</td>
+        <td data-member-highlight="show.staff.translator"></td>
+        <td data-member-highlight="show.staff.editor"></td>
+        <td data-member-highlight="show.staff.timer"></td>
+        <td data-member-highlight="show.staff.typesetter"></td>
+      </tr>
+    </tbody>
   </script>
-  <script type="text/ng-template" id="tpl/shows.html">
-    <table class="pure-table pure-table-horizontal">
-      <thead><tr><th>Series</th><th>Last Aired</th><th>Episodes</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th></tr></thead>
-      <tbody>
-        <tr ng-repeat="show in shows">
-          <td class="title">{{ show.titles.english }}</td>
-          <td>{{ localise_date(show.airtime.$date) }}</td>
-          <td>{{ show.episodes.total }}</td>
-          <td>{{ show.staff.translator.name }}</td>
-          <td>{{ show.staff.editor.name }}</td>
-          <td>{{ show.staff.timer.name }}</td>
-          <td>{{ show.staff.typesetter.name }}</td>
-        </tr>
-      </tbody>
+  <script type="text/ng-template" id="tpl/completed.html">
+    <thead><tr><th>Series</th><th>Last Aired</th><th>Episodes</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th></tr></thead>
+    <tbody>
+      <tr ng-repeat="show in shows">
+        <td class="title">{{ show.titles.english }}</td>
+        <td>{{ localise_date(show.airtime.$date) }}</td>
+        <td>{{ show.episodes.total }}</td>
+        <td>{{ show.staff.translator.name }}</td>
+        <td>{{ show.staff.editor.name }}</td>
+        <td>{{ show.staff.timer.name }}</td>
+        <td>{{ show.staff.typesetter.name }}</td>
+      </tr>
+    </tbody>
   </script>
   <script type="text/ng-template" id="tpl/shows.detail.html">
     <div class="pure-g">
