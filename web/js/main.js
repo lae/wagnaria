@@ -14,7 +14,9 @@ angular.module('Wagnaria', ['ui.router', 'ngResource'])
         function($resource) {
             return $resource( '/api/1/shows/:showId.json', {showId: '@_id.$oid'}, {
                 'getAiring': { method: 'GET', url: '/api/1/shows/airing.json', isArray: true },
-                'getCompleted': { method: 'GET', url: '/api/1/shows/completed.json', isArray: true }
+                'getCompleted': { method: 'GET', url: '/api/1/shows/completed.json', isArray: true },
+                'getIncomplete': { method: 'GET', url: '/api/1/shows/incomplete.json', isArray: true },
+                'getUnaired': { method: 'GET', url: '/api/1/shows/unaired.json', isArray: true }
             });
         }])
     .factory('staff', ['$resource',
@@ -72,6 +74,26 @@ angular.module('Wagnaria')
                     resolve: {
                         Shows: ['Shows',
                             function(Shows){ return Shows.getCompleted().$promise; }
+                        ]
+                    },
+                    controller: 'ShowsCtrl'
+                })
+                .state('shows.incomplete', {
+                    url: '/incomplete',
+                    templateUrl: 'tpl/airing.html',
+                    resolve: {
+                        Shows: ['Shows',
+                            function(Shows){ return Shows.getIncomplete().$promise; }
+                        ]
+                    },
+                    controller: 'ShowsCtrl'
+                })
+                .state('shows.future', {
+                    url: '/unaired',
+                    templateUrl: 'tpl/completed.html',
+                    resolve: {
+                        Shows: ['Shows',
+                            function(Shows){ return Shows.getUnaired().$promise; }
                         ]
                     },
                     controller: 'ShowsCtrl'
