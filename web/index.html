@@ -36,13 +36,23 @@
 
   <!-- Templates -->
   <script type="text/ng-template" id="tpl/airing.html">
-    <table class="pure-table pure-table-horizontal">
-      <thead><tr><th>Series</th><th>Airtime</th><th>Time 'til Air</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th></tr></thead>
+    <table class="pure-table pure-table-horizontal" ng-init="sorted='airtime.$date'; reverse=true">
+      <thead>
+        <tr>
+          <th ng-click="sorted='titles.english';reverse=!reverse">Series</th>
+          <th ng-click="sorted='episodes.current';reverse=!reverse">Episode</th>
+          <th ng-click="sorted='airtime.$date';reverse=!reverse">will air/has aired</th>
+          <th ng-click="sorted='staff.translator.name';reverse=!reverse">Translator</th>
+          <th ng-click="sorted='staff.editor.name';reverse=!reverse">Editor</th>
+          <th ng-click="sorted='staff.timer.name';reverse=!reverse">Timer</th>
+          <th ng-click="sorted='staff.typesetter.name';reverse=!reverse">Typesetter</th>
+        </tr>
+      </thead>
       <tbody>
-        <tr data-ng-repeat="show in shows" ng-click="$state.go('shows.detail', {'showId': '{{show._id.$oid}}'})">
+        <tr data-ng-repeat="show in shows | orderBy:sorted:reverse" ng-click="$state.go('shows.detail', {'showId': '{{show._id.$oid}}'})">
           <td class="title">{{ show.titles.english }}</td>
-          <td>{{ localise_date(show.airtime.$date) }}</td>
-          <td>{{ countdown(show.airtime.$date) }}</td>
+          <td>{{ show.episodes.current+1 }} (of {{ show.episodes.total }})</td>
+          <td data-eta="show.airtime.$date"></td>
           <td data-member-highlight="show.staff.translator"></td>
           <td data-member-highlight="show.staff.editor"></td>
           <td data-member-highlight="show.staff.timer"></td>

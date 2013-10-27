@@ -94,8 +94,35 @@ angular.module('Wagnaria')
             link: function(scope, elm, attrs) {
                 //function updateMember() {
                     //elm.text(attrs.memberHighlight.name);
-                    console.log(scope.member);
                 //}
+            }
+        }
+    })
+    .directive('eta', function($timeout) {
+        return {
+            scope: { airtime: '=eta' },
+            template: '{{eta}}',
+            link: function postLink(scope, elm, attrs) {
+                var timeoutId, eta;
+                function updateETA() {
+                    var now = moment();
+                    var air = moment(scope.airtime);
+                    eta = air.from(now);
+                    elm.text(eta);
+                }
+                function timer(nextminute) {
+                    timeoutId = $timeout(function() {
+                        updateETA();
+                        timer(1000);
+                    }, nextminute);
+                }
+                function secondsTilNextMinute() {
+                    var current_second = moment().second();
+                    return 60 - current_second;
+                }
+                elm.on('$destroy', function() { $timeout.cancel(timeoutId); });
+                updateETA();
+                timer(1000);
             }
         }
     });
