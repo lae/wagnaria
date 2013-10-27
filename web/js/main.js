@@ -23,13 +23,20 @@ angular.module('Wagnaria', ['ui.router', 'ngResource'])
         }]);
 
 angular.module('Wagnaria')
-    .controller('ShowsCtrl', ['$scope', '$state', 'Shows',
-        function($scope, $state, Shows) {
+    .controller('ShowsCtrl', ['$scope', '$state', '$stateParams', 'Shows',
+        function($scope, $state, $stateParams, Shows) {
             console.log('loading shows');
-            $scope.shows = Shows;
+            if($stateParams.showId) {
+                $scope.show = Shows;
+            } else {
+                $scope.shows = Shows;
+            }
             $scope.localise_date = function(date) {
                 return moment(date).format('llll');
             };
+            $scope.nipify_date = function(date) {
+                return moment(date).utc().lang('ja').add('hours', +9).format('llll');
+            }
         }
     ]);
 
@@ -44,7 +51,16 @@ angular.module('Wagnaria')
                 .state('shows', {
                     url: '/shows',
                     abstract: true,
-                    template: '<table class="pure-table pure-table-horizontal" data-ui-view></table>',
+                    template: '<div id="muffinbox" data-ui-view></div>' +
+                        '',
+                })
+                .state('shows.detail', {
+                    url: '/{showId:[0-9a-f]{24}}',
+                    templateUrl: 'tpl/shows.detail.html',
+                    resolve: {
+                        Shows: ['Shows', '$stateParams', function(Shows, $stateParams){ return Shows.get({showId: $stateParams.showId}).$promise; }]
+                    },
+                    controller: 'ShowsCtrl'
                 })
                 .state('shows.completed', {
                     url: '/completed',

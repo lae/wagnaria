@@ -24,10 +24,7 @@
       </ul>
     </div>
   </div>
-  <div id="食べ物" class="pure-u">
-    <div id="muffinbox" ui-view></div>
-    <div class="stalk" id="tablefooter">Times are local.</div>
-  </div>
+  <div id="食べ物" class="pure-u" data-ui-view></div>
 </div>  
   <!-- JavaScript -->
   <script src="lib/angular.js"></script>
@@ -39,63 +36,69 @@
 
   <!-- Templates -->
   <script type="text/ng-template" id="tpl/airing.html">
-    <thead><tr><th>Series</th><th>Airtime</th><th>Time 'til Air</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th></tr></thead>
-    <tbody>
-      <tr data-ng-repeat="show in shows">
-        <td class="title">{{ show.titles.english }}</td>
-        <td>{{ localise_date(show.airtime.$date) }}</td>
-        <td>{{ countdown(show.airtime.$date) }}</td>
-        <td data-member-highlight="show.staff.translator"></td>
-        <td data-member-highlight="show.staff.editor"></td>
-        <td data-member-highlight="show.staff.timer"></td>
-        <td data-member-highlight="show.staff.typesetter"></td>
-      </tr>
-    </tbody>
+    <table class="pure-table pure-table-horizontal">
+      <thead><tr><th>Series</th><th>Airtime</th><th>Time 'til Air</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th></tr></thead>
+      <tbody>
+        <tr data-ng-repeat="show in shows" ng-click="$state.go('shows.detail', {'showId': '{{show._id.$oid}}'})">
+          <td class="title">{{ show.titles.english }}</td>
+          <td>{{ localise_date(show.airtime.$date) }}</td>
+          <td>{{ countdown(show.airtime.$date) }}</td>
+          <td data-member-highlight="show.staff.translator"></td>
+          <td data-member-highlight="show.staff.editor"></td>
+          <td data-member-highlight="show.staff.timer"></td>
+          <td data-member-highlight="show.staff.typesetter"></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="stalk" id="tablefooter">Times are local.</div>
   </script>
   <script type="text/ng-template" id="tpl/completed.html">
-    <thead><tr><th>Series</th><th>Last Aired</th><th>Episodes</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th></tr></thead>
-    <tbody>
-      <tr ng-repeat="show in shows">
-        <td class="title">{{ show.titles.english }}</td>
-        <td>{{ localise_date(show.airtime.$date) }}</td>
-        <td>{{ show.episodes.total }}</td>
-        <td>{{ show.staff.translator.name }}</td>
-        <td>{{ show.staff.editor.name }}</td>
-        <td>{{ show.staff.timer.name }}</td>
-        <td>{{ show.staff.typesetter.name }}</td>
-      </tr>
-    </tbody>
+    <table class="pure-table pure-table-horizontal">
+      <thead><tr><th>Series</th><th>Last Aired</th><th>Episodes</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th></tr></thead>
+      <tbody>
+        <tr ng-repeat="show in shows" ng-click="$state.go('shows.detail', {'showId': show._id.$oid})">
+          <td class="title">{{ show.titles.english }}</td>
+          <td>{{ localise_date(show.airtime.$date) }}</td>
+          <td>{{ show.episodes.total }}</td>
+          <td>{{ show.staff.translator.name }}</td>
+          <td>{{ show.staff.editor.name }}</td>
+          <td>{{ show.staff.timer.name }}</td>
+          <td>{{ show.staff.typesetter.name }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="stalk" id="tablefooter">Times are local.</div>
   </script>
   <script type="text/ng-template" id="tpl/shows.detail.html">
     <div class="pure-g">
       <div class="show-header pure-g">
         <button type="button" class="close back-button">×</button>
         <div class="pure-u-1-2">
-          <h3><%= titles.english %></h3>
+          <h3>{{ show.titles.english }}</h3>
         </div>
       </div>
       <div class="show-body pure-g-r">
         <div class="pure-u-1-2">
           <dl class="dl-horizontal">
-            <dt>Japanese Title</dt><dd><%= titles.japanese %></dd>
-            <dt>Short Title/Abbr.</dt><dd><%= titles.short %></dd>
-            <dt>Airtime (JST)</dt><dd><%= jst_date %></dd>
-            <dt>Airtime (Local)</dt><dd><%= local_date %></dd>
-            <dt>Episode Count</dt><dd><%= episodes.current %> / <%= episodes.total %></dd>
-            <dt>Channel</dt><dd><%= channel %></dd>
+            <dt>Japanese Title</dt><dd>{{ show.titles.japanese }}</dd>
+            <dt>Short Title/Abbr.</dt><dd>{{ show.titles.short }}</dd>
+            <dt>Airtime (JST)</dt><dd>{{ nipify_date(show.airtime.$date) }}</dd>
+            <dt>Airtime (Local)</dt><dd>{{ localise_date(show.airtime.$date) }}</dd>
+            <dt>Episode Count</dt><dd>{{ show.episodes.current }} / {{ show.episodes.total }}</dd>
+            <dt>Channel</dt><dd>{{ show.channel }}</dd>
           </dl>
         </div>
         <div class="pure-u-1-3">
           <dl class="dl-horizontal">
-            <dt>Translator</dt><dd class="<%= classes.status.tl %>"><%= staff.translator.name %></dd>
-            <dt>Editor</dt><dd class="<%= classes.status.ed %>"><%= staff.editor.name %></dd>
-            <dt>Timer</dt><dd class="<%= classes.status.tm %>"><%= staff.timer.name %></dd>
-            <dt>Typesetter</dt><dd class="<%= classes.status.ts %>"><%= staff.typesetter.name %></dd>
+            <dt>Translator</dt><dd data-member-highlight="show.staff.translator"></dd>
+            <dt>Editor</dt><dd data-member-highlight="show.staff.editor"></dd></dd>
+            <dt>Timer</dt><dd data-member-highlight="show.staff.timer"></dd>
+            <dt>Typesetter</dt><dd data-member-highlight="show.staff.typesetter"></dd>
           </dl>
         </div>
       </div>
     </div>
-    <div class="stalk"><a href="<%= link %>">Releases here.</a></div>
+    <div class="stalk"><a href="{{ show.link }}">Releases here.</a></div>
   </script>
   <script type="text/ng-template" id="tpl/staff.member.html">
     <h5><%= name %></h5>
