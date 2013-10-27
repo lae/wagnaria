@@ -52,8 +52,9 @@ dd { margin-left: 10px; }
 .qc { background: #5fff67; }
 .airing_now td, .airing_1 td, .airing_3 td, .airing_6 td, .airing_12 td, .subbing td, .qc td { border: none; }
 
-.aired .staff-status-false { background: rgba(247,47,55,0.8) !important; color: rgba(255,255,255,0.8) !important; }
-.aired .staff-status-true { background: rgba(31,191,55,0.9) !important; }
+dd.staff-status-false, .aired .staff-status-false { background: rgba(247,47,55,0.8) !important; color: rgba(255,255,255,0.8) !important; }
+dd.staff-status-true, .aired .staff-status-true { background: rgba(31,191,55,0.9) !important; }
+dd.staff-status-false, dd.staff-status-true { line-height: 1.7em; text-indent: 0.7em; }
 
 #basket, #parasol, .pure-menu-toggle { -webkit-transition: all 0.3s ease-out; -moz-transition: all 0.3s ease-out; -ms-transition: all 0.3s ease-out; -o-transition: all 0.3s ease-out; transition: all 0.3s ease-out; }
 @media (max-width: 960px) {
