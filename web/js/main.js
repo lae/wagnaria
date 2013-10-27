@@ -37,6 +37,10 @@ angular.module('Wagnaria')
             $scope.nipify_date = function(date) {
                 return moment(date).utc().lang('ja').add('hours', +9).format('llll');
             }
+            $scope.setSort = function(newSort) {
+                this.reverse = this.sorted == newSort ? !this.reverse : false;
+                this.sorted = newSort;
+            }
         }
     ]);
 

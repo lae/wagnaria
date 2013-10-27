@@ -39,13 +39,13 @@
     <table class="pure-table pure-table-horizontal" ng-init="sorted='airtime.$date'">
       <thead>
         <tr>
-          <th ng-click="sorted='titles.english';reverse=!reverse">Series</th>
-          <th ng-click="sorted='episodes.current';reverse=!reverse">Episode</th>
-          <th ng-click="sorted='airtime.$date';reverse=!reverse">will air/has aired</th>
-          <th ng-click="sorted='staff.translator.name';reverse=!reverse">Translator</th>
-          <th ng-click="sorted='staff.editor.name';reverse=!reverse">Editor</th>
-          <th ng-click="sorted='staff.timer.name';reverse=!reverse">Timer</th>
-          <th ng-click="sorted='staff.typesetter.name';reverse=!reverse">Typesetter</th>
+          <th ng-click="setSort('titles.english')">Series</th>
+          <th ng-click="setSort('episodes.current')">Episode</th>
+          <th ng-click="setSort('airtime.$date')">will air/has aired</th>
+          <th ng-click="setSort('staff.translator.name')">Translator</th>
+          <th ng-click="setSort('staff.editor.name')">Editor</th>
+          <th ng-click="setSort('staff.timer.name')">Timer</th>
+          <th ng-click="setSort('staff.typesetter.name')">Typesetter</th>
         </tr>
       </thead>
       <tbody>
