@@ -93,12 +93,10 @@ angular.module('Wagnaria')
     .directive('memberHighlight', function() {
         return {
             restrict: 'A',
-            scope: { member: '=memberHighlight' },
-            template: '{{member.name}}',
+            scope: { memberName: '@', progress: '@' },
+            template: '{{memberName}}',
             link: function(scope, elm, attrs) {
-                //function updateMember() {
-                    //elm.text(attrs.memberHighlight.name);
-                //}
+                elm.addClass('staff-status-' + scope.progress);
             }
         }
     })
@@ -107,12 +105,14 @@ angular.module('Wagnaria')
             scope: { airtime: '=eta' },
             template: '{{eta}}',
             link: function postLink(scope, elm, attrs) {
-                var timeoutId, eta;
+                var timeoutId, eta, eta_min;
                 function updateETA() {
                     var now = moment();
                     var air = moment(scope.airtime);
                     eta = air.from(now);
                     elm.text(eta);
+                    eta_min = air.diff(now, 'minutes');
+                    if(eta_min < 0) { elm.parent().addClass('aired'); }
                 }
                 function timer(nextminute) {
                     timeoutId = $timeout(function() {

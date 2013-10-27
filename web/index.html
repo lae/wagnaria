@@ -49,14 +49,14 @@
         </tr>
       </thead>
       <tbody>
-        <tr data-ng-repeat="show in shows | orderBy:sorted:reverse" ng-click="$state.go('shows.detail', {'showId': '{{show._id.$oid}}'})">
+        <tr data-ng-repeat="show in shows | orderBy:sorted:reverse" ng-click="$state.go('shows.detail', {'showId': '{{show._id.$oid}}'})" data-airing='show.airtime.$date'>
           <td class="title">{{ show.titles.english }}</td>
           <td>{{ show.episodes.current+1 }} (of {{ show.episodes.total }})</td>
           <td data-eta="show.airtime.$date"></td>
-          <td data-member-highlight="show.staff.translator"></td>
-          <td data-member-highlight="show.staff.editor"></td>
-          <td data-member-highlight="show.staff.timer"></td>
-          <td data-member-highlight="show.staff.typesetter"></td>
+          <td data-member-highlight data-member-name="{{show.staff.translator.name}}" data-progress="{{show.progress.translated}}"></td>
+          <td data-member-highlight data-member-name="{{show.staff.editor.name}}" data-progress="{{show.progress.edited}}"></td>
+          <td data-member-highlight data-member-name="{{show.staff.timer.name}}" data-progress="{{show.progress.timed}}"></td>
+          <td data-member-highlight data-member-name="{{show.staff.typesetter.name}}" data-progress="{{show.progress.typeset}}"></td>
         </tr>
       </tbody>
     </table>

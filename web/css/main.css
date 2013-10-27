@@ -52,9 +52,8 @@ dd { margin-left: 10px; }
 .qc { background: #5fff67; }
 .airing_now td, .airing_1 td, .airing_3 td, .airing_6 td, .airing_12 td, .subbing td, .qc td { border: none; }
 
-.staff-status-disabled, .staff-status-false, .staff-status-true { color: rgba(0,0,0,0.8); padding: 0.1em 0.2em; }
-.staff-status-false { background: rgba(247,47,55,0.8); }
-.staff-status-true { background: rgba(31,191,55,0.9); }
+.aired .staff-status-false { background: rgba(247,47,55,0.8) !important; color: rgba(255,255,255,0.8) !important; }
+.aired .staff-status-true { background: rgba(31,191,55,0.9) !important; }
 
 #basket, #parasol, .pure-menu-toggle { -webkit-transition: all 0.3s ease-out; -moz-transition: all 0.3s ease-out; -ms-transition: all 0.3s ease-out; -o-transition: all 0.3s ease-out; transition: all 0.3s ease-out; }
 @media (max-width: 960px) {
