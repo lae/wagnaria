@@ -131,7 +131,7 @@ angular.module('Wagnaria')
             scope: { memberName: '@', progress: '@', status: '@' },
             template: '{{memberName}}',
             link: function(scope, elm, attrs) {
-                if(scope.status == 'airing'){
+                if(scope.status == 'airing' || scope.status == 'incomplete'){
                     elm.addClass('staff-status-' + scope.progress);
                 }
             }
