@@ -158,7 +158,7 @@ angular.module('Wagnaria')
                 function timer(nextminute) {
                     timeoutId = $timeout(function() {
                         updateETA();
-                        timer(1000);
+                        timer(60000);
                     }, nextminute);
                 }
                 function secondsTilNextMinute() {
@@ -167,7 +167,7 @@ angular.module('Wagnaria')
                 }
                 elm.on('$destroy', function() { $timeout.cancel(timeoutId); });
                 updateETA();
-                timer(1000);
+                timer(secondsTilNextMinute*1000);
             }
         }
     });
