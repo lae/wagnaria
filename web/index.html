@@ -82,7 +82,7 @@
   <script type="text/ng-template" id="tpl/shows.detail.html">
     <div class="pure-g">
       <div class="show-header pure-g">
-        <button type="button" class="close back-button">×</button>
+        <button type="button" class="close" ng-click="$state.go('shows.{{show.status}}')">×</button>
         <div class="pure-u-1-2">
           <h3>{{ show.titles.english }}</h3>
         </div>

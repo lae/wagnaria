@@ -81,7 +81,7 @@ angular.module('Wagnaria')
                     },
                     controller: 'ShowsCtrl'
                 })
-                .state('shows.completed', {
+                .state('shows.complete', {
                     url: '/completed',
                     templateUrl: 'tpl/completed.html',
                     resolve: {
@@ -101,7 +101,7 @@ angular.module('Wagnaria')
                     },
                     controller: 'ShowsCtrl'
                 })
-                .state('shows.future', {
+                .state('shows.unaired', {
                     url: '/unaired',
                     templateUrl: 'tpl/completed.html',
                     resolve: {
