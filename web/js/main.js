@@ -147,7 +147,11 @@ angular.module('Wagnaria')
                     eta = air.from(now);
                     elm.text(eta);
                     eta_min = air.diff(now, 'minutes');
-                    if(eta_min < 0) { elm.parent().addClass('aired'); }
+                    if(eta_min < -30) { elm.parent().removeClass('airing_1'); elm.parent().addClass('subbing'); }
+                    if(eta_min > 0 && eta_min <= 60) { elm.parent().removeClass('airing_3'); elm.parent().addClass('airing_1'); }
+                    if(eta_min > 60 && eta_min <= 180) { elm.parent().removeClass('airing_6'); elm.parent().addClass('airing_3'); }
+                    if(eta_min > 180 && eta_min <= 360) { elm.parent().removeClass('airing_12'); elm.parent().addClass('airing_6'); }
+                    if(eta_min > 360 && eta_min <= 720) { elm.parent().addClass('airing_12'); }
                 }
                 function timer(nextminute) {
                     timeoutId = $timeout(function() {
