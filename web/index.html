@@ -15,11 +15,11 @@
   <div id="parasol" class="pure-u">
     <div class="pure-menu pure-menu-open">
       <a class="pure-menu-heading" href="/">Wagnaria</a>
-      <ul>
-        <li id="nav_airing"><a href="#/">Airing</a></li>
-        <li id="nav_future"><a href="#shows/unaired">Future</a></li>
-        <li id="nav_incomplete"><a href="#shows/incomplete">Incomplete</a></li>
-        <li id="nav_complete"><a href="#shows/completed">Completed</a></li>
+      <ul ng-controller="StatusCtrl">
+        <li id="nav_airing" ng-if="counts.airing > 0"><a href="#/">Airing ({{counts.airing}})</a></li>
+        <li id="nav_future" ng-if="counts.unaired > 0"><a href="#shows/unaired">Future ({{counts.unaired}})</a></li>
+        <li id="nav_incomplete" ng-if="counts.incomplete > 0"><a href="#shows/incomplete">Incomplete ({{counts.incomplete}})</a></li>
+        <li id="nav_complete" ng-if="counts.complete > 0"><a href="#shows/completed">Completed ({{counts.complete}})</a></li>
         <li id="nav_staff" class="menu-item-divided"><a href="#staff">Staff</a></li>
       </ul>
     </div>

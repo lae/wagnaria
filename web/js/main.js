@@ -44,6 +44,20 @@ angular.module('Wagnaria')
                 this.sorted = newSort;
             }
         }
+    ])
+    .controller('StatusCtrl', ['$scope', '$http',
+        function($scope, $http) {
+            var loadCounts = function() {
+                $http({method: 'GET', url: '/api/1/shows/status.json'})
+                .success(function (data) {
+                    $scope.counts = data;
+                })
+                .error(function(data, status) {
+                    console.log(status + data);
+                });
+            }
+            loadCounts();
+        }
     ]);
 
 angular.module('Wagnaria')
@@ -57,8 +71,7 @@ angular.module('Wagnaria')
                 .state('shows', {
                     url: '/shows',
                     abstract: true,
-                    template: '<div id="muffinbox" data-ui-view></div>' +
-                        '',
+                    template: '<div id="muffinbox" data-ui-view></div>',
                 })
                 .state('shows.detail', {
                     url: '/{showId:[0-9a-f]{24}}',

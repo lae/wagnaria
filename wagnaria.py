@@ -4,6 +4,7 @@ import yaml
 from datetime import datetime as dt
 import json
 import re
+import collections
 
 from pymongo import MongoClient
 from bson.json_util import dumps
@@ -140,6 +141,7 @@ class WagnariaAPI(object):
         b.route('/shows/ref.json', 'GET', self.shows.all_docs_short)
         b.route('/shows/<oid:oid>.json', 'GET', self.shows.by_id)
         b.route('/shows/<oid:oid>/blame.json', 'GET', self.shows.impute)
+        b.route('/shows/status.json', 'GET', self.shows.status_count)
         b.route('/shows/<oid:oid>/<key:re:[a-z_.]+>.json', 'GET', self.shows.by_id)
         b.route('/shows/<group:re:[a-z_]+>.json', 'GET', self.shows.by_group)
         b.route('/shows/<oid:oid>.json', 'DELETE', self.shows.destroy)
@@ -253,6 +255,12 @@ class ShowsCollection(RESTfulCollection):
         shows = self.find(query)
         shows = map(lambda s: self.resolve_staff(s), shows)
         return self.reply(shows)
+
+    def status_count(self):
+        """ Return counts for each status. """
+        shows = [s['status'] for s in self.find()]
+        counts = dict(collections.Counter(shows))
+        return self.reply(counts)
 
     def impute(self, oid):
         """ Return information about who's stalling a show. """
