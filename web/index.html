@@ -46,10 +46,11 @@
           <th ng-click="setSort('staff.editor.name')">Editor</th>
           <th ng-click="setSort('staff.timer.name')">Timer</th>
           <th ng-click="setSort('staff.typesetter.name')">Typesetter</th>
+          <th>Encoded?</th>
         </tr>
       </thead>
       <tbody>
-        <tr data-ng-repeat="show in shows | orderBy:sorted:reverse" ng-click="$state.go('shows.detail', {'showId': '{{show._id.$oid}}'})" data-airing='show.airtime.$date'>
+        <tr data-ng-repeat="show in shows | orderBy:sorted:reverse" ng-click="$state.go('shows.detail', {'showId': '{{show._id.$oid}}'})" data-airing='show.airtime.$date' ng-init="enctext=show.progress.encoded?'Yes':'No'">
           <td class="title">{{ show.titles.english }}</td>
           <td>{{ show.episodes.current+1 }} (of {{ show.episodes.total }})</td>
           <td data-eta="show.airtime.$date"></td>
@@ -57,6 +58,7 @@
           <td data-member-highlight data-member-name="{{show.staff.editor.name}}" data-progress="{{show.progress.edited}}" data-status="{{show.status}}"></td>
           <td data-member-highlight data-member-name="{{show.staff.timer.name}}" data-progress="{{show.progress.timed}}" data-status="{{show.status}}"></td>
           <td data-member-highlight data-member-name="{{show.staff.typesetter.name}}" data-progress="{{show.progress.typeset}}" data-status="{{show.status}}"></td>
+          <td data-member-highlight data-member-name="{{enctext}}" data-progress="{{show.progress.encoded}}" data-status="{{show.status}}" class="encoded-status"></td>
         </tr>
       </tbody>
     </table>

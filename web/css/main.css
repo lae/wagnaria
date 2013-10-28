@@ -55,6 +55,8 @@ dd { margin-left: 10px; }
 dd.staff-status-false, .subbing .staff-status-false { background: rgba(247,47,55,0.8) !important; color: rgba(255,255,255,0.8) !important; }
 dd.staff-status-true, .subbing .staff-status-true { background: rgba(31,191,55,0.9) !important; }
 dd.staff-status-false, dd.staff-status-true { line-height: 1.7em; text-indent: 0.7em; }
+.encoded-status { color: transparent; }
+.subbing .encoded-status { color: inherit; }
 
 #basket, #parasol, .pure-menu-toggle { -webkit-transition: all 0.3s ease-out; -moz-transition: all 0.3s ease-out; -ms-transition: all 0.3s ease-out; -o-transition: all 0.3s ease-out; transition: all 0.3s ease-out; }
 @media (max-width: 960px) {
