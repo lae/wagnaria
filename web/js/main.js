@@ -128,10 +128,12 @@ angular.module('Wagnaria')
     .directive('memberHighlight', function() {
         return {
             restrict: 'A',
-            scope: { memberName: '@', progress: '@' },
+            scope: { memberName: '@', progress: '@', status: '@' },
             template: '{{memberName}}',
             link: function(scope, elm, attrs) {
-                elm.addClass('staff-status-' + scope.progress);
+                if(scope.status == 'airing'){
+                    elm.addClass('staff-status-' + scope.progress);
+                }
             }
         }
     })
