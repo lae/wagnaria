@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-ng-app="Wagnaria">
 <head>
   <title>Wagnaria!</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,78 +15,102 @@
   <div id="parasol" class="pure-u">
     <div class="pure-menu pure-menu-open">
       <a class="pure-menu-heading" href="/">Wagnaria</a>
-      <ul>
-        <li id="nav_airing"><a href="#">Airing</a></li>
-        <li id="nav_future"><a href="#shows/unaired">Future</a></li>
-        <li id="nav_incomplete"><a href="#shows/incomplete">Incomplete</a></li>
-        <li id="nav_complete"><a href="#shows/complete">Completed</a></li>
+      <ul ng-controller="StatusCtrl">
+        <li id="nav_airing" ng-if="counts.airing > 0"><a href="#/">Airing ({{counts.airing}})</a></li>
+        <li id="nav_future" ng-if="counts.unaired > 0"><a href="#shows/unaired">Future ({{counts.unaired}})</a></li>
+        <li id="nav_incomplete" ng-if="counts.incomplete > 0"><a href="#shows/incomplete">Incomplete ({{counts.incomplete}})</a></li>
+        <li id="nav_complete" ng-if="counts.complete > 0"><a href="#shows/completed">Completed ({{counts.complete}})</a></li>
         <li id="nav_staff" class="menu-item-divided"><a href="#staff">Staff</a></li>
       </ul>
     </div>
   </div>
-  <div id="食べ物" class="pure-u">
-    <div id="muffinbox"></div>
-    <div class="stalk" id="tablefooter">Times are local.</div>
-  </div>
+  <div id="食べ物" class="pure-u" data-ui-view></div>
 </div>  
   <!-- JavaScript -->
-  <script src="lib/jquery-2.0.1.min.js"></script>
-  <!--script src="lib/jquery.hotkeys.js"></script-->
+  <script src="lib/angular.js"></script>
+  <script src="lib/angular-ui-router.js"></script>
+  <script src="lib/angular-resource.js"></script>
   <script src="lib/moment.min.js"></script>
   <script src="lib/moment.ja.js"></script>
-  <script src="lib/countdown.min.js"></script>
-  <script src="lib/underscore-min.js"></script>
-  <script src="lib/backbone-min.js"></script>
   <script src="js/main.js"></script>
 
   <!-- Templates -->
-  <script type="text/template" id="tpl-airing-item">
-    <td class="title"><%= titles.english %></td>
-    <td><%= local_date %></td>
-    <td id="<%= id %>_cd"><%= eta %></td>
-    <td><%= blame %></td>
+  <script type="text/ng-template" id="tpl/airing.html">
+    <table class="pure-table pure-table-horizontal" ng-init="sorted='airtime.$date'">
+      <thead>
+        <tr>
+          <th ng-click="setSort('titles.english')">Series</th>
+          <th ng-click="setSort('episodes.current')">Episode</th>
+          <th ng-click="setSort('airtime.$date')">will air/has aired</th>
+          <th ng-click="setSort('staff.translator.name')">Translator</th>
+          <th ng-click="setSort('staff.editor.name')">Editor</th>
+          <th ng-click="setSort('staff.timer.name')">Timer</th>
+          <th ng-click="setSort('staff.typesetter.name')">Typesetter</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-ng-repeat="show in shows | orderBy:sorted:reverse" ng-click="$state.go('shows.detail', {'showId': '{{show._id.$oid}}'})" data-airing='show.airtime.$date'>
+          <td class="title">{{ show.titles.english }}</td>
+          <td>{{ show.episodes.current+1 }} (of {{ show.episodes.total }})</td>
+          <td data-eta="show.airtime.$date"></td>
+          <td data-member-highlight data-member-name="{{show.staff.translator.name}}" data-progress="{{show.progress.translated}}"></td>
+          <td data-member-highlight data-member-name="{{show.staff.editor.name}}" data-progress="{{show.progress.edited}}"></td>
+          <td data-member-highlight data-member-name="{{show.staff.timer.name}}" data-progress="{{show.progress.timed}}"></td>
+          <td data-member-highlight data-member-name="{{show.staff.typesetter.name}}" data-progress="{{show.progress.typeset}}"></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="stalk" id="tablefooter">Times are local.</div>
   </script>
-  <script type="text/template" id="tpl-complete-item">
-    <td class="title"><%= titles.english %></td>
-    <td><%= local_date %></td>
-    <td><%= episodes.total %></td>
-    <td><%= staff.translator.name %></td>
-    <td><%= staff.editor.name %></td>
-    <td><%= staff.timer.name %></td>
-    <td><%= staff.typesetter.name %></td>
+  <script type="text/ng-template" id="tpl/completed.html">
+    <table class="pure-table pure-table-horizontal">
+      <thead><tr><th>Series</th><th>Last Aired</th><th>Episodes</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th></tr></thead>
+      <tbody>
+        <tr ng-repeat="show in shows" ng-click="$state.go('shows.detail', {'showId': show._id.$oid})">
+          <td class="title">{{ show.titles.english }}</td>
+          <td>{{ localise_date(show.airtime.$date) }}</td>
+          <td>{{ show.episodes.total }}</td>
+          <td>{{ show.staff.translator.name }}</td>
+          <td>{{ show.staff.editor.name }}</td>
+          <td>{{ show.staff.timer.name }}</td>
+          <td>{{ show.staff.typesetter.name }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="stalk" id="tablefooter">Times are local.</div>
   </script>
-  <script type="text/template" id="tpl-show-details">
+  <script type="text/ng-template" id="tpl/shows.detail.html">
     <div class="pure-g">
       <div class="show-header pure-g">
-        <button type="button" class="close back-button">×</button>
+        <button type="button" class="close" ng-click="$state.go('shows.{{show.status}}')">×</button>
         <div class="pure-u-1-2">
-          <h3><%= titles.english %></h3>
+          <h3>{{ show.titles.english }}</h3>
         </div>
       </div>
       <div class="show-body pure-g-r">
         <div class="pure-u-1-2">
           <dl class="dl-horizontal">
-            <dt>Japanese Title</dt><dd><%= titles.japanese %></dd>
-            <dt>Short Title/Abbr.</dt><dd><%= titles.short %></dd>
-            <dt>Airtime (JST)</dt><dd><%= jst_date %></dd>
-            <dt>Airtime (Local)</dt><dd><%= local_date %></dd>
-            <dt>Episode Count</dt><dd><%= episodes.current %> / <%= episodes.total %></dd>
-            <dt>Channel</dt><dd><%= channel %></dd>
+            <dt>Japanese Title</dt><dd>{{ show.titles.japanese }}</dd>
+            <dt>Short Title/Abbr.</dt><dd>{{ show.titles.short }}</dd>
+            <dt>Airtime (JST)</dt><dd>{{ nipify_date(show.airtime.$date) }}</dd>
+            <dt>Airtime (Local)</dt><dd>{{ localise_date(show.airtime.$date) }}</dd>
+            <dt>Episode Count</dt><dd>{{ show.episodes.current }} / {{ show.episodes.total }}</dd>
+            <dt>Channel</dt><dd>{{ show.channel }}</dd>
           </dl>
         </div>
         <div class="pure-u-1-3">
           <dl class="dl-horizontal">
-            <dt>Translator</dt><dd class="<%= classes.status.tl %>"><%= staff.translator.name %></dd>
-            <dt>Editor</dt><dd class="<%= classes.status.ed %>"><%= staff.editor.name %></dd>
-            <dt>Timer</dt><dd class="<%= classes.status.tm %>"><%= staff.timer.name %></dd>
-            <dt>Typesetter</dt><dd class="<%= classes.status.ts %>"><%= staff.typesetter.name %></dd>
+            <dt>Translator</dt><dd data-member-highlight data-member-name="{{show.staff.translator.name}}" data-progress="{{show.progress.translated}}""></dd>
+            <dt>Editor</dt><dd data-member-highlight data-member-name="{{show.staff.editor.name}}" data-progress="{{show.progress.edited}}""></dd></dd>
+            <dt>Timer</dt><dd data-member-highlight data-member-name="{{show.staff.timer.name}}" data-progress="{{show.progress.timed}}""></dd>
+            <dt>Typesetter</dt><dd data-member-highlight data-member-name="{{show.staff.typesetter.name}}" data-progress="{{show.progress.typeset}}""></dd>
           </dl>
         </div>
       </div>
     </div>
-    <div class="stalk"><a href="<%= link %>">Releases here.</a></div>
+    <div class="stalk"><a href="{{ show.link }}">Releases here.</a></div>
   </script>
-  <script type="text/template" id="tpl-member-item">
+  <script type="text/ng-template" id="tpl/staff.member.html">
     <h5><%= name %></h5>
   </script>
 
