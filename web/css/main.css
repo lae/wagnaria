@@ -1,4 +1,4 @@
-body { font-family: sans-serif; background: #f7f7f7; }
+body { font-family: sans-serif; background: #f7f7f7; font-size: 0.95em; }
 a { color: #9f2f3f; text-decoration: none; }
 
 
@@ -32,6 +32,7 @@ dd { margin-left: 10px; }
 #parasol li.pure-menu-selected a:hover, #parasol li.pure-menu-selected a:focus { background: none; }
 
 .pure-table thead { line-height: 2em; padding: 0.6em 0; background: #1f1f1f; color: #fff; }
+.pure-table td, .pure-table th { overflow: hidden; }
 .pure-table th { border-color: #333; }
 .pure-table { border-width: 0 0 1px; }
 .pure-table tbody tr:hover td { background: rgba(0,0,0,0.07); }
