@@ -205,13 +205,13 @@ class WagnariaAPI(object):
         b.route('/shows/status.json', 'GET', self.shows.status_count)
         b.route('/shows/<oid:oid>/<key:re:[a-z_.]+>.json', 'GET', self.shows.by_id)
         b.route('/shows/<group:re:[a-z_]+>.json', 'GET', self.shows.by_group)
-        b.route('/shows/<oid:oid>.json', 'DELETE', self.shows.destroy)
+#        b.route('/shows/<oid:oid>.json', 'DELETE', self.shows.destroy)
 
         b.route('/staff.json', 'GET', self.staff.all_docs)
         b.route('/staff/ref.json', 'GET', self.staff.all_docs_short)
         b.route('/staff/<oid:oid>.json', 'GET', self.staff.by_id)
         b.route('/staff/<oid:oid>/shows.json', 'GET', self.staff.show_history)
-        b.route('/staff/<oid:oid>.json', 'DELETE', self.staff.destroy)
+#        b.route('/staff/<oid:oid>.json', 'DELETE', self.staff.destroy)
 
         b.route('/search.json', 'GET', self.search)
 
