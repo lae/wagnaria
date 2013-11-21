@@ -94,7 +94,7 @@ class Wagnaria(object):
             ['typesetter', 'typeset']
         ]
         tbl_airing = []
-        for show in airing:
+        for show in sorted(airing, key=lambda k: k['airtime']):
             encoded = "Yes" if show['progress']['encoded'] else "No"
             eta = (show['airtime'] - loads(dumps(now))).total_seconds()/60
             row_class = {
