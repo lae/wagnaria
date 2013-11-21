@@ -42,6 +42,7 @@
           <th ng-click="setSort('titles.english')">Series</th>
           <th ng-click="setSort('episodes.current')">Episode</th>
           <th ng-click="setSort('airtime.$date')">will air/has aired</th>
+          <th>Archive</th>
           <th ng-click="setSort('staff.translator.name')">Translator</th>
           <th ng-click="setSort('staff.editor.name')">Editor</th>
           <th ng-click="setSort('staff.timer.name')">Timer</th>
@@ -54,6 +55,7 @@
           <td class="title">{{ show.titles.english }}</td>
           <td>{{ show.episodes.current+1 }} (of {{ show.episodes.total }})</td>
           <td data-eta="show.airtime.$date"></td>
+          >td><a href="{{ show.link }}"><i class="icon-black icon-info-sign"></i></a></td>
           <td data-member-highlight data-member-name="{{show.staff.translator.name}}" data-progress="{{show.progress.translated}}" data-status="{{show.status}}"></td>
           <td data-member-highlight data-member-name="{{show.staff.editor.name}}" data-progress="{{show.progress.edited}}" data-status="{{show.status}}"></td>
           <td data-member-highlight data-member-name="{{show.staff.timer.name}}" data-progress="{{show.progress.timed}}" data-status="{{show.status}}"></td>
@@ -66,12 +68,13 @@
   </script>
   <script type="text/ng-template" id="tpl/completed.html">
     <table class="pure-table pure-table-horizontal">
-      <thead><tr><th>Series</th><th>Last Aired</th><th>Episodes</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th></tr></thead>
+      <thead><tr><th>Series</th><th>Last Aired</th><th>Episodes</th><th>Archive</th><th>Translator</th><th>Editor</th><th>Timer</th><th>Typesetter</th></tr></thead>
       <tbody>
         <tr ng-repeat="show in shows" ng-click="$state.go('shows.detail', {'showId': show._id.$oid})">
           <td class="title">{{ show.titles.english }}</td>
           <td>{{ localise_date(show.airtime.$date) }}</td>
           <td>{{ show.episodes.total }}</td>
+          >td><a href="{{ show.link }}"><i class="icon-black icon-info-sign"></i></a></td>
           <td>{{ show.staff.translator.name }}</td>
           <td>{{ show.staff.editor.name }}</td>
           <td>{{ show.staff.timer.name }}</td>

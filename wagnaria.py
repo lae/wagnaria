@@ -118,6 +118,8 @@ class Wagnaria(object):
             row += '<td>%d (of %d)</td>' % (show['episodes']['current'] + 1,
                                             show['episodes']['total'])
             row += '<td>%s</td>' % show['airtime']
+            row += '<td><a href="%s"><i class="icon-black ' % show['link']
+            row += 'icon-info-sign"></i></a></td>'
             for p in positions:
                 row += '<td class="staff-status-%s">%s</td>' % (
                         str(show['progress'][p[1]]).lower(),
@@ -128,13 +130,14 @@ class Wagnaria(object):
             tbl_airing.append(row)
         table = '<div id="食べ物" class="pure-u">' \
             '<table class="pure-table pure-table-horizontal"><thead><tr>' \
-            '<th>Series</th><th>Episode</th><th>airs on</th>' \
+            '<th>Series</th><th>Episode</th><th>airs on</th><th>Archive</th>' \
             '<th>Translator</th><th>Editor</th><th>Timer</th>' \
             '<th>Typesetter</th><th>Encoded?</th></tr></thead>'\
             '<tbody>%s</tbody></table></div>' % ''.join(tbl_airing)
         body = '<!DOCTYPE html><html lang="en"><head>' \
             '<title>Wagnaria!</title>' \
             '<link href="css/pure-min.css" rel="stylesheet" media="screen">' \
+            '<link href="css/glyphs.min.css" rel="stylesheet" media="screen">' \
             '<link href="css/main.css" rel="stylesheet" media="screen">' \
             '</head><body>%s</body></html>' % table
         response.content_type = "text/html"
