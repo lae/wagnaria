@@ -125,7 +125,7 @@ class Wagnaria(object):
                         str(show['progress'][p[1]]).lower(),
                         show['staff'][p[0]]['name']
                     )
-            row += '<td class="staff-status-%s">%s</td>' %\
+            row += '<td class="staff-status-%s encoded-status">%s</td>' %\
                     (str(show['progress']['encoded']).lower(), encoded)
             tbl_airing.append(row)
         table = '<div id="食べ物" class="pure-u">' \
