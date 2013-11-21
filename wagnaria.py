@@ -7,7 +7,7 @@ import re
 import collections
 
 from pymongo import MongoClient
-from bson.json_util import dumps
+from bson.json_util import dumps, loads
 from bson.objectid import ObjectId
 
 import bottle
@@ -83,9 +83,67 @@ class Wagnaria(object):
         return("<pre>Strawberries and cream, \nbiscuits and tea, \nwon't you "
                "join me \nin the oak tree?</pre>")
 
+    def simple(self):
+        """ Return a JS-free table of shows. """
+        airing = loads(self.api.shows.by_group('airing'))
+        now = dt.utcnow()
+        positions = [
+            ['translator', 'translated'],
+            ['editor', 'edited'],
+            ['timer', 'timed'],
+            ['typesetter', 'typeset']
+        ]
+        tbl_airing = []
+        for show in airing:
+            encoded = "Yes" if show['progress']['encoded'] else "No"
+            eta = (show['airtime'] - loads(dumps(now))).total_seconds()/60
+            row_class = {
+                True: 'subbing',
+                False: {
+                    True: 'airing_1',
+                    False: {
+                        True: 'airing_3',
+                        False: {
+                            True: 'airing_6',
+                            False: {
+                                True: 'airing_12',
+                                False: ''
+                            }.get(eta<=720)
+                        }.get(eta<=360)
+                    }.get(eta<=180)
+                }.get(eta<=60)
+            }.get(eta<0)
+            row = '<tr class="%s">' % row_class
+            row += '<td class="title">%s</td>' % show['titles']['english']
+            row += '<td>%d (of %d)</td>' % (show['episodes']['current'] + 1,
+                                            show['episodes']['total'])
+            row += '<td>%s</td>' % show['airtime']
+            for p in positions:
+                row += '<td class="staff-status-%s">%s</td>' % (
+                        str(show['progress'][p[1]]).lower(),
+                        show['staff'][p[0]]['name']
+                    )
+            row += '<td class="staff-status-%s">%s</td>' %\
+                    (str(show['progress']['encoded']).lower(), encoded)
+            tbl_airing.append(row)
+        table = '<div id="食べ物" class="pure-u">' \
+            '<table class="pure-table pure-table-horizontal"><thead><tr>' \
+            '<th>Series</th><th>Episode</th><th>airs on</th>' \
+            '<th>Translator</th><th>Editor</th><th>Timer</th>' \
+            '<th>Typesetter</th><th>Encoded?</th></tr></thead>'\
+            '<tbody>%s</tbody></table></div>' % ''.join(tbl_airing)
+        body = '<!DOCTYPE html><html lang="en"><head>' \
+            '<title>Wagnaria!</title>' \
+            '<link href="css/pure-min.css" rel="stylesheet" media="screen">' \
+            '<link href="css/main.css" rel="stylesheet" media="screen">' \
+            '</head><body>%s</body></html>' % table
+        response.content_type = "text/html"
+        return body
+
     def install_routes(self, b):
         """ Define routes to their select functions for a Bottle app. """
         b.route('/', 'ANY', self.index)
+        b.route('/simple', 'GET', self.simple)
 
 class WagnariaAPI(object):
     """ API with JSON only responses """
