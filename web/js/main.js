@@ -121,7 +121,7 @@ angular.module('Wagnaria')
                 })
                 .state('shows.unaired', {
                     url: '/unaired',
-                    templateUrl: 'tpl/completed.html',
+                    templateUrl: 'tpl/airing.html',
                     resolve: {
                         Shows: ['Shows',
                             function(Shows){ return Shows.getUnaired().$promise; }
