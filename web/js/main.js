@@ -19,7 +19,7 @@ angular.module('Wagnaria', ['ui.router', 'ngResource'])
                 'getUnaired': { method: 'GET', url: '/api/1/shows/unaired.json', isArray: true }
             });
         }])
-    .factory('staff', ['$resource',
+    .factory('Staff', ['$resource',
         function($resource) {
             return $resource( '/api/1/staff/:memberId.json', {memberId: '@_id.$oid'} );
         }]);
@@ -27,7 +27,6 @@ angular.module('Wagnaria', ['ui.router', 'ngResource'])
 angular.module('Wagnaria')
     .controller('ShowsCtrl', ['$scope', '$state', '$stateParams', 'Shows',
         function($scope, $state, $stateParams, Shows) {
-            console.log('loading shows');
             if($stateParams.showId) {
                 $scope.show = Shows;
             } else {
@@ -38,6 +37,20 @@ angular.module('Wagnaria')
             };
             $scope.nipify_date = function(date) {
                 return moment(date).utc().lang('ja').add('hours', +9).format('llll');
+            }
+            $scope.setSort = function(newSort) {
+                this.reverse = this.sorted == newSort ? !this.reverse : false;
+                this.sorted = newSort;
+            }
+        }
+    ])
+    .controller('StaffCtrl', ['$scope', '$state', '$stateParams', 'Staff',
+        function($scope, $state, $stateParams, Staff) {
+            console.log('loading staff');
+            if($stateParams.memberId) {
+                $scope.member = Staff;
+            } else {
+                $scope.staff = Staff;
             }
             $scope.setSort = function(newSort) {
                 this.reverse = this.sorted == newSort ? !this.reverse : false;
@@ -70,6 +83,11 @@ angular.module('Wagnaria')
             $stateProvider
                 .state('shows', {
                     url: '/shows',
+                    abstract: true,
+                    template: '<div id="muffinbox" data-ui-view></div>',
+                })
+                .state('staff', {
+                    url: '/staff',
                     abstract: true,
                     template: '<div id="muffinbox" data-ui-view></div>',
                 })
@@ -120,6 +138,16 @@ angular.module('Wagnaria')
                         ]
                     },
                     controller: 'ShowsCtrl'
+                })
+                .state('staff.all', {
+                    url: '/all',
+                    templateUrl: 'tpl/staff.html',
+                    resolve: {
+                        Staff: ['Staff',
+                            function(Staff){ return Staff.query().$promise; }
+                        ]
+                    },
+                    controller: 'StaffCtrl'
                 });
         }
     ]);

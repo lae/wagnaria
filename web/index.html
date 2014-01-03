@@ -20,7 +20,7 @@
         <li id="nav_future" ng-if="counts.unaired > 0"><a href="#shows/unaired">Future ({{counts.unaired}})</a></li>
         <li id="nav_incomplete" ng-if="counts.incomplete > 0"><a href="#shows/incomplete">Incomplete ({{counts.incomplete}})</a></li>
         <li id="nav_complete" ng-if="counts.complete > 0"><a href="#shows/completed">Completed ({{counts.complete}})</a></li>
-        <li id="nav_staff" class="menu-item-divided"><a href="#staff">Staff</a></li>
+        <li id="nav_staff" class="menu-item-divided"><a href="#staff/all">Staff</a></li>
       </ul>
     </div>
   </div>
@@ -114,6 +114,18 @@
       </div>
     </div>
     <div class="stalk"><a href="{{ show.link }}">Releases here.</a></div>
+  </script>
+  <script type="text/ng-template" id="tpl/staff.html">
+    <table class="pure-table pure-table-horizontal">
+      <thead><tr><th>Name</th><th>Position</th><th>Twitter</th></thead>
+      <tbody>
+        <tr ng-repeat="member in staff"><!-- ng-click="$state.go('staff.detail', {'memberId': member._id.$oid})">-->
+          <td>{{ member.name }}</td>
+          <td>{{ member.position }}</td>
+          <td><a href="https://twitter.com/{{ member.twitter }}">@{{ member.twitter }}</a></td>
+        </tr>
+      </tbody>
+    </table>
   </script>
   <script type="text/ng-template" id="tpl/staff.member.html">
     <h5><%= name %></h5>
