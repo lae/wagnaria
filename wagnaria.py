@@ -306,6 +306,7 @@ class ShowsCollection(RESTfulCollection):
             'incomplete': {"status": "incomplete"},
             'airing': { "status": "airing" },
             'unaired': { "status": "unaired" },
+            'dropped': {"status": "dropped"},
             'aired': {"status": "airing", "progress.encoded": False,
                 "airtime": {"$lt": dt.utcnow()}},
             'current_episodes': {"status": "airing",
