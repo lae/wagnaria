@@ -16,7 +16,8 @@ angular.module('Wagnaria', ['ui.router', 'ngResource'])
                 'getAiring': { method: 'GET', url: '/api/1/shows/airing.json', isArray: true },
                 'getCompleted': { method: 'GET', url: '/api/1/shows/completed.json', isArray: true },
                 'getIncomplete': { method: 'GET', url: '/api/1/shows/incomplete.json', isArray: true },
-                'getUnaired': { method: 'GET', url: '/api/1/shows/unaired.json', isArray: true }
+                'getUnaired': { method: 'GET', url: '/api/1/shows/unaired.json', isArray: true },
+                'getDropped': { method: 'GET', url: '/api/1/shows/dropped.json', isArray: true }
             });
         }])
     .factory('Staff', ['$resource',
@@ -117,6 +118,17 @@ angular.module('Wagnaria')
                             function(Shows){ return Shows.getIncomplete().$promise; }
                         ]
                     },
+                    controller: 'ShowsCtrl'
+                })
+                .state('shows.dropped', {
+                    url: '/dropped',
+                    templateUrl: 'tpl/completed.html',
+                    resolve: {
+                        Shows: ['Shows',
+                            function(Shows){ return Shows.getDropped().$promise; }
+                        ],
+                    },
+                    data: {},
                     controller: 'ShowsCtrl'
                 })
                 .state('shows.unaired', {

@@ -1,0 +1,13 @@
+    <table class="pure-table pure-table-horizontal">
+      <thead><tr><th>Name</th><th>Position</th><th>Twitter</th></thead>
+      <tbody>
+        <tr ng-repeat="member in staff | filter:{status:'active'}:true | orderBy:['-level', 'name']"><!-- ng-click="$state.go('staff.detail', {'memberId': member._id.$oid})">-->
+          <td>{{ member.name }}</td>
+          <td>{{ member.position }}</td>
+          <td><a href="https://twitter.com/{{ member.twitter }}">@{{ member.twitter }}</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <!--div class="inactive-staff">
+      <p><span ng-repeat="member in staff | filter:{status:'inactive'}:true">{{member.name}}{{$last ? '' : ', '}}</span></p>
+    </div-->
