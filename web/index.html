@@ -52,7 +52,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr data-ng-repeat="show in shows | orderBy:sorted:reverse" ng-click="$state.go('shows.detail', {'showId': '{{show._id.$oid}}'})" data-airing='show.airtime.$date' ng-init="enctext=show.progress.encoded?'Yes':'No'">
+        <tr data-ng-repeat="show in shows | orderBy:sorted:reverse" ng-click="$state.go('shows.detail', {'showId': show._id.$oid})" data-airing='show.airtime.$date' ng-init="enctext=show.progress.encoded?'Yes':'No'">
           <td class="title">{{ show.titles.english }}</td>
           <td>{{ show.episodes.current+1 }} (of {{ show.episodes.total }})</td>
           <td data-eta="show.airtime.$date"></td>
@@ -88,7 +88,7 @@
   <script type="text/ng-template" id="tpl/shows.detail.html">
     <div class="pure-g">
       <div class="show-header pure-g">
-        <button type="button" class="close" ng-click="$state.go('shows.{{show.status}}')">×</button>
+        <button type="button" class="close" ng-click="$state.go('shows.' + show.status)">×</button>
         <div class="pure-u-1-2">
           <h3>{{ show.titles.english }}</h3>
         </div>
