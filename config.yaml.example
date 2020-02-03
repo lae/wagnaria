@@ -9,3 +9,6 @@ bottle_run:
     port: 8080
     debug: False
     reloader: True
+# Application-specific settings
+app:
+    title: Wagnaria!
